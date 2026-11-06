@@ -1,0 +1,52 @@
+{
+ "method": "products.list",
+ "owner_row": {
+  "id": 5,
+  "sku": "MARK-MP-500G",
+  "name": "Mark Milk Powder 500 g",
+  "sell_mode": "carton_pcs",
+  "list_price": 1058400,
+  "max_discount": {
+   "per_unit": 12000
+  },
+  "stock": {
+   "base": 648,
+   "unit": "pcs",
+   "cartons": 27,
+   "pcs": 0,
+   "kg": "324.000",
+   "text": {
+    "bn": "27 কার্টন",
+    "en": "27 cartons"
+   }
+  },
+  "status": "ok",
+  "cost_price": 994896,
+  "margin_bp": 600,
+  "min_sell_price": 1000000,
+  "stock_value": 26862192
+ },
+ "manager_row": {
+  "id": 5,
+  "sku": "MARK-MP-500G",
+  "name": "Mark Milk Powder 500 g",
+  "sell_mode": "carton_pcs",
+  "list_price": 1058400,
+  "max_discount": {
+   "per_unit": 12000
+  },
+  "stock": {
+   "base": 648,
+   "unit": "pcs",
+   "cartons": 27,
+   "pcs": 0,
+   "kg": "324.000",
+   "text": {
+    "bn": "27 কার্টন",
+    "en": "27 cartons"
+   }
+  },
+  "status": "ok"
+ },
+ "rule": "For manager the keys cost_price, margin_bp, min_sell_price, stock_value are ABSENT (not null, not 0). Same for lots.unit_cost, sales lines cost/profit, dashboard profit, commission.*."
+}

@@ -1,0 +1,110 @@
+{
+  "setup": "fixtureState + paymentState",
+  "method": "payments.receive",
+  "request": {
+    "customer_id": 7,
+    "amount": 12000000,
+    "method": "bkash",
+    "ref": "TRX9KD81LQ",
+    "allocation": {
+      "mode": "auto_oldest"
+    }
+  },
+  "response": {
+    "ok": true,
+    "data": {
+      "payment": {
+        "id": 1,
+        "receipt_no": "RCV-01042",
+        "ts": "2026-11-06T06:00:00.000Z",
+        "date": "2026-11-06",
+        "party_type": "customer",
+        "party_id": 7,
+        "party_name": "Fixture Shop",
+        "amount": 12000000,
+        "method": "bkash",
+        "ref": "TRX9KD81LQ",
+        "note": null,
+        "status": "active",
+        "created_by": "Owner",
+        "allocations": [
+          {
+            "sale_id": 130,
+            "invoice_no": "INV-000130",
+            "purchase_id": null,
+            "opening": false,
+            "amount": 9343000
+          },
+          {
+            "sale_id": 132,
+            "invoice_no": "INV-000132",
+            "purchase_id": null,
+            "opening": false,
+            "amount": 2150000
+          },
+          {
+            "sale_id": 141,
+            "invoice_no": "INV-000141",
+            "purchase_id": null,
+            "opening": false,
+            "amount": 507000
+          }
+        ],
+        "cheque": null,
+        "reversal": null
+      },
+      "customer_due_before": 16493000,
+      "customer_due_after": 4493000,
+      "receipt": {
+        "payment": {
+          "id": 1,
+          "receipt_no": "RCV-01042",
+          "ts": "2026-11-06T06:00:00.000Z",
+          "date": "2026-11-06",
+          "party_type": "customer",
+          "party_id": 7,
+          "party_name": "Fixture Shop",
+          "amount": 12000000,
+          "method": "bkash",
+          "ref": "TRX9KD81LQ",
+          "note": null,
+          "status": "active",
+          "created_by": "Owner",
+          "allocations": [
+            {
+              "sale_id": 130,
+              "invoice_no": "INV-000130",
+              "purchase_id": null,
+              "opening": false,
+              "amount": 9343000
+            },
+            {
+              "sale_id": 132,
+              "invoice_no": "INV-000132",
+              "purchase_id": null,
+              "opening": false,
+              "amount": 2150000
+            },
+            {
+              "sale_id": 141,
+              "invoice_no": "INV-000141",
+              "purchase_id": null,
+              "opening": false,
+              "amount": 507000
+            }
+          ],
+          "cheque": null,
+          "reversal": null
+        },
+        "business": {
+          "name": "MM Traders",
+          "address": "Dhaka",
+          "phone": "01700000000"
+        },
+        "customer_due_after": 4493000,
+        "size": "80",
+        "is_copy": false
+      }
+    }
+  }
+}

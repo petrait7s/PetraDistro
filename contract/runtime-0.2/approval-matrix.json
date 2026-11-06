@@ -1,0 +1,28 @@
+{
+  "ttl_seconds": 120,
+  "single_use": true,
+  "bind": [
+    "user_id",
+    "operation",
+    "sha256(canonical payload excluding approval and request_id)"
+  ],
+  "fresh_owner": [
+    "editmode.enable",
+    "sales.cancel",
+    "purchases.cancel",
+    "payments.reverse",
+    "payments.refund",
+    "backup.restore",
+    "license.reveal",
+    "cash.reopen",
+    "loadsheet.reopen",
+    "expenses.reverse",
+    "returns.reverse",
+    "employees.reverse"
+  ],
+  "manager_conditional": {
+    "sales.create": "effective discount exceeds cap/minimum or blocked credit",
+    "sales.cancel": "own same-day, no later allocation or return, and approval setting enabled"
+  },
+  "owner_discount": "direct, reason logged if over cap"
+}

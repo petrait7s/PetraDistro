@@ -1,0 +1,123 @@
+{
+  "session.locked": {
+    "type": "object",
+    "properties": {
+      "reason": {
+        "enum": [
+          "idle",
+          "manual"
+        ]
+      }
+    },
+    "required": [
+      "reason"
+    ],
+    "additionalProperties": false
+  },
+  "net.status": {
+    "type": "object",
+    "properties": {
+      "online": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "online"
+    ],
+    "additionalProperties": false
+  },
+  "drive.queue": {
+    "type": "object",
+    "properties": {
+      "queued": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      }
+    },
+    "required": [
+      "queued"
+    ],
+    "additionalProperties": false
+  },
+  "backup.completed": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "ts": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "drive": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "required": [
+      "id",
+      "ts",
+      "drive"
+    ],
+    "additionalProperties": false
+  },
+  "clock.warning": {
+    "type": "object",
+    "properties": {
+      "last_seen": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "now": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "last_seen",
+      "now"
+    ],
+    "additionalProperties": false
+  },
+  "license.changed": {
+    "type": "object",
+    "properties": {
+      "state": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "required": [
+      "state"
+    ],
+    "additionalProperties": false
+  },
+  "stock.alert": {
+    "type": "object",
+    "properties": {
+      "low": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "out": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "near_expiry": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      }
+    },
+    "required": [
+      "low",
+      "out",
+      "near_expiry"
+    ],
+    "additionalProperties": false
+  }
+}

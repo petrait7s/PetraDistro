@@ -1,0 +1,196 @@
+{
+  "setup": "fixtureState",
+  "method": "products.list",
+  "request": {
+    "q": "MARK-MP-500G"
+  },
+  "owner_response": {
+    "ok": true,
+    "data": {
+      "rows": [
+        {
+          "id": 5,
+          "sku": "MARK-MP-500G",
+          "company_id": 1,
+          "company_name": "Fixture Supplier",
+          "name": "Mark Milk Powder 500 g",
+          "original_name": null,
+          "sell_mode": "carton_pcs",
+          "pcs_per_carton": 24,
+          "pcs_per_dozen": null,
+          "grams_per_carton": 12000,
+          "list_price": 1058400,
+          "retail_price": null,
+          "cost_price": 994896,
+          "margin_bp": 600,
+          "max_discount": {
+            "per_unit": 12000,
+            "percent_bp": null
+          },
+          "min_sell_price": 1000000,
+          "min_stock": {
+            "base": 0,
+            "unit": "pcs",
+            "cartons": 0,
+            "pcs": 0,
+            "kg": "0.000",
+            "text": {
+              "en": "0 cartons",
+              "bn": "0 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+            }
+          },
+          "stock": {
+            "base": 648,
+            "unit": "pcs",
+            "cartons": 27,
+            "pcs": 0,
+            "kg": "324.000",
+            "text": {
+              "en": "27 cartons",
+              "bn": "27 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+            }
+          },
+          "stock_value": 26862192,
+          "status": "ok",
+          "next_expiry": null,
+          "trend30": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "needs_setup": false,
+          "setup_issues": [],
+          "active": true
+        }
+      ],
+      "page": {
+        "total": 1,
+        "next_cursor": null
+      },
+      "totals": {
+        "count": 1,
+        "stock_cartons": 27,
+        "stock_value": 26862192
+      }
+    }
+  },
+  "manager_response": {
+    "ok": true,
+    "data": {
+      "rows": [
+        {
+          "id": 5,
+          "sku": "MARK-MP-500G",
+          "company_id": 1,
+          "company_name": "Fixture Supplier",
+          "name": "Mark Milk Powder 500 g",
+          "original_name": null,
+          "sell_mode": "carton_pcs",
+          "pcs_per_carton": 24,
+          "pcs_per_dozen": null,
+          "grams_per_carton": 12000,
+          "list_price": 1058400,
+          "retail_price": null,
+          "max_discount": {
+            "per_unit": 12000,
+            "percent_bp": null
+          },
+          "min_stock": {
+            "base": 0,
+            "unit": "pcs",
+            "cartons": 0,
+            "pcs": 0,
+            "kg": "0.000",
+            "text": {
+              "en": "0 cartons",
+              "bn": "0 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+            }
+          },
+          "stock": {
+            "base": 648,
+            "unit": "pcs",
+            "cartons": 27,
+            "pcs": 0,
+            "kg": "324.000",
+            "text": {
+              "en": "27 cartons",
+              "bn": "27 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+            }
+          },
+          "status": "ok",
+          "next_expiry": null,
+          "trend30": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "needs_setup": false,
+          "setup_issues": [],
+          "active": true
+        }
+      ],
+      "page": {
+        "total": 1,
+        "next_cursor": null
+      },
+      "totals": {
+        "count": 1,
+        "stock_cartons": 27
+      }
+    }
+  }
+}

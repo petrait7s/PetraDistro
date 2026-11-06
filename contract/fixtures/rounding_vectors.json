@@ -1,0 +1,50 @@
+{
+ "rule": "line_gross = round_half_up(qty_base * unit_price / unit_base); unit_base = pcs_per_carton (carton_pcs) or 1000 (by_kg grams). Rounded once per line, never per unit.",
+ "by_kg": [
+  {
+   "grams": 375,
+   "price_per_kg_paisa": 25800,
+   "line_gross_paisa": 9675
+  },
+  {
+   "grams": 377,
+   "price_per_kg_paisa": 25800,
+   "line_gross_paisa": 9727
+  },
+  {
+   "grams": 1,
+   "price_per_kg_paisa": 25800,
+   "line_gross_paisa": 26
+  },
+  {
+   "grams": 500,
+   "price_per_kg_paisa": 22800,
+   "line_gross_paisa": 11400
+  },
+  {
+   "grams": 4464,
+   "price_per_kg_paisa": 25800,
+   "line_gross_paisa": 115171
+  }
+ ],
+ "carton_pcs": [
+  {
+   "pcs": 60,
+   "pcs_per_carton": 24,
+   "price_per_carton_paisa": 1058400,
+   "line_gross_paisa": 2646000
+  },
+  {
+   "pcs": 13,
+   "pcs_per_carton": 24,
+   "price_per_carton_paisa": 1058400,
+   "line_gross_paisa": 573300
+  },
+  {
+   "pcs": 7,
+   "pcs_per_carton": 12,
+   "price_per_carton_paisa": 949200,
+   "line_gross_paisa": 553700
+  }
+ ]
+}

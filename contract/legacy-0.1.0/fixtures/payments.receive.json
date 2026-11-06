@@ -1,0 +1,64 @@
+{
+ "method": "payments.receive",
+ "request": {
+  "customer_id": 7,
+  "amount": 12000000,
+  "method": "bkash",
+  "ref": "TRX9KD81LQ",
+  "allocation": {
+   "mode": "auto_oldest"
+  }
+ },
+ "response": {
+  "ok": true,
+  "data": {
+   "payment": {
+    "receipt_no": "RCV-01042",
+    "amount": 12000000,
+    "method": "bkash",
+    "status": "active",
+    "allocations": [
+     {
+      "invoice_no": "INV-000130",
+      "date": "2026-11-04",
+      "was_due": 9343000,
+      "amount": 9343000
+     },
+     {
+      "invoice_no": "INV-000132",
+      "date": "2026-11-04",
+      "was_due": 2150000,
+      "amount": 2150000
+     },
+     {
+      "invoice_no": "INV-000141",
+      "date": "2026-11-06",
+      "was_due": 5000000,
+      "amount": 507000
+     }
+    ]
+   },
+   "customer_due_before": 16493000,
+   "customer_due_after": 4493000
+  }
+ },
+ "errors": [
+  {
+   "when": "amount > due and allocation.mode != on_account",
+   "code": "VALIDATION",
+   "details": {
+    "fields": [
+     {
+      "path": "amount",
+      "rule": "max_due",
+      "message": "amount exceeds customer due"
+     }
+    ]
+   }
+  },
+  {
+   "when": "payment.reverse by manager",
+   "code": "FORBIDDEN"
+  }
+ ]
+}

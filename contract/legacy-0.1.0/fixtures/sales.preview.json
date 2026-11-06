@@ -1,0 +1,133 @@
+{
+ "note": "Customer buys 4 products, discount on 3 of them, one line over its cap. Quantities in base units (pcs / grams). Assumes pcs_per_carton: Mark 24, Ama 12, Mark 2kg 6 (placeholders, see open question 11).",
+ "method": "sales.preview",
+ "request": {
+  "customer_id": 7,
+  "lines": [
+   {
+    "product_id": 5,
+    "qty": {
+     "cartons": 2,
+     "pcs": 12
+    },
+    "discount": {
+     "type": "per_unit",
+     "value": 8000
+    }
+   },
+   {
+    "product_id": 16,
+    "qty": {
+     "cartons": 3
+    },
+    "discount": {
+     "type": "percent",
+     "value": 100
+    }
+   },
+   {
+    "product_id": 47,
+    "qty": {
+     "kg": "25"
+    },
+    "discount": {
+     "type": "per_unit",
+     "value": 500
+    }
+   },
+   {
+    "product_id": 1,
+    "qty": {
+     "cartons": 1
+    }
+   }
+  ]
+ },
+ "response": {
+  "ok": true,
+  "data": {
+   "lines": [
+    {
+     "line_no": 1,
+     "sku": "MARK-MP-500G",
+     "name": "Mark Milk Powder 500 g",
+     "qty_base": 60,
+     "list_price": 1058400,
+     "gross": 2646000,
+     "discount": {
+      "type": "per_unit",
+      "input": 8000,
+      "amount": 20000,
+      "per_unit": 8000
+     },
+     "net": 2626000,
+     "over_cap": false,
+     "allowed_per_unit": 12000
+    },
+    {
+     "line_no": 2,
+     "sku": "AMA-MP-1KG",
+     "name": "Ama Milk Powder 1 kg",
+     "qty_base": 36,
+     "list_price": 949200,
+     "gross": 2847600,
+     "discount": {
+      "type": "percent",
+      "input": 100,
+      "amount": 28476,
+      "per_unit": 9492
+     },
+     "net": 2819124,
+     "over_cap": false,
+     "allowed_per_unit": 12000
+    },
+    {
+     "line_no": 3,
+     "sku": "S-BOP-500G",
+     "name": "S BOP Tea 500 g",
+     "qty_base": 25000,
+     "list_price": 25800,
+     "gross": 645000,
+     "discount": {
+      "type": "per_unit",
+      "input": 500,
+      "amount": 12500,
+      "per_unit": 500
+     },
+     "net": 632500,
+     "over_cap": true,
+     "allowed_per_unit": 300
+    },
+    {
+     "line_no": 4,
+     "sku": "MARK-MP-2KG",
+     "name": "Mark Milk Powder 2 kg",
+     "qty_base": 6,
+     "list_price": 1044000,
+     "gross": 1044000,
+     "discount": {
+      "type": "none",
+      "input": 0,
+      "amount": 0,
+      "per_unit": 0
+     },
+     "net": 1044000,
+     "over_cap": false,
+     "allowed_per_unit": 12000
+    }
+   ],
+   "totals": {
+    "subtotal": 7182600,
+    "line_discount": 60976,
+    "invoice_discount": 0,
+    "total": 7121624,
+    "paid": 0,
+    "due": 7121624,
+    "over_cap_lines": [
+     3
+    ],
+    "needs_owner_pin": true
+   }
+  }
+ }
+}

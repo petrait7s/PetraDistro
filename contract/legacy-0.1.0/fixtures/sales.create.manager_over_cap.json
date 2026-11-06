@@ -1,0 +1,61 @@
+{
+ "method": "sales.create",
+ "as": "manager",
+ "request": {
+  "customer_id": 7,
+  "lines": [
+   {
+    "product_id": 47,
+    "qty": {
+     "kg": "25"
+    },
+    "discount": {
+     "type": "per_unit",
+     "value": 500
+    }
+   }
+  ]
+ },
+ "response": {
+  "ok": false,
+  "code": "NEEDS_OWNER_PIN",
+  "message": "Line 1 exceeds max discount",
+  "details": {
+   "reason_kind": "discount_over_cap",
+   "lines": [
+    {
+     "index": 0,
+     "requested_per_unit": 500,
+     "allowed_per_unit": 300
+    }
+   ]
+  }
+ },
+ "then": [
+  {
+   "method": "auth.requestApproval",
+   "request": {
+    "owner_pin": "****",
+    "scope": "discount_override"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "token": "ap_8f3c...",
+     "expires_at": "2026-11-06T08:22:00Z",
+     "scope": "discount_override"
+    }
+   }
+  },
+  {
+   "method": "sales.create",
+   "request_adds": {
+    "approval": {
+     "token": "ap_8f3c...",
+     "reason": "বড় অর্ডার, পুরনো ক্রেতা"
+    }
+   },
+   "response_summary": "ok:true; audit rows: sales.create + sales.override(flag); discount_overrides row created"
+  }
+ ]
+}

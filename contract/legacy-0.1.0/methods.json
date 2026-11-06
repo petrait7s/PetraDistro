@@ -1,0 +1,1832 @@
+{
+ "contract_version": "0.1.0",
+ "transport": "window.api.call(method, args) -> {ok:true,data} | {ok:false,code,message,details?}",
+ "methods": [
+  {
+   "name": "license.status",
+   "who": "public",
+   "summary": "Is this install activated? Called first at every start.",
+   "input": {},
+   "output": {
+    "state": "enum(none|active|invalid|revoked)",
+    "business_name": "string?",
+    "code_masked": "string?  (PETRA-MMTR-••••-••••)",
+    "setup_done": "bool"
+   },
+   "errors": []
+  },
+  {
+   "name": "license.activate",
+   "who": "public",
+   "summary": "First install: validate the Petra code and store it (hashed + masked copy). Offline check only.",
+   "input": {
+    "code": "string  (PETRA-XXXX-XXXX-XXXX)"
+   },
+   "output": {
+    "state": "active"
+   },
+   "errors": [
+    "VALIDATION",
+    "LICENSE"
+   ],
+   "audit": "license.activate"
+  },
+  {
+   "name": "setup.complete",
+   "who": "public",
+   "summary": "After activation: business details, owner + manager accounts. Allowed once.",
+   "input": {
+    "business": {
+     "name": "string",
+     "address": "string?",
+     "phone": "string?"
+    },
+    "owner": {
+     "name": "string",
+     "pin": "string (min 4)"
+    },
+    "manager": {
+     "name": "string",
+     "pin": "string (min 4)"
+    },
+    "language": "enum(bn|en)?",
+    "theme": "enum(light|dark|system)?"
+   },
+   "output": {
+    "done": "bool"
+   },
+   "errors": [
+    "VALIDATION",
+    "STATE",
+    "LICENSE"
+   ],
+   "audit": "setup.complete"
+  },
+  {
+   "name": "license.reveal",
+   "who": "owner",
+   "summary": "Show the full license code. Needs fresh owner approval token (scope license_reveal).",
+   "input": {
+    "approval": "Approval"
+   },
+   "output": {
+    "code": "string"
+   },
+   "errors": [
+    "NEEDS_OWNER_PIN",
+    "FORBIDDEN"
+   ],
+   "audit": "license.reveal"
+  },
+  {
+   "name": "auth.login",
+   "who": "public",
+   "summary": "Login with PIN. Rate-limited: 5 wrong tries then 30 s wait (backend enforced).",
+   "input": {
+    "role": "enum(owner|manager)",
+    "pin": "string"
+   },
+   "output": {
+    "user": "User",
+    "session": {
+     "token": "string",
+     "lock_after_sec": "int"
+    },
+    "prefs": "Prefs",
+    "settings_public": "{business_name:string, language:string, theme:string, games_enabled:bool, features:{commission:bool, games:bool}}"
+   },
+   "errors": [
+    "VALIDATION",
+    "FORBIDDEN",
+    "LICENSE"
+   ],
+   "audit": "auth.login"
+  },
+  {
+   "name": "auth.logout",
+   "who": "both",
+   "summary": "End session.",
+   "input": {},
+   "output": "null",
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "auth.lock",
+   "who": "both",
+   "summary": "Lock screen now (also automatic after idle).",
+   "input": {},
+   "output": "null",
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "auth.unlock",
+   "who": "both",
+   "summary": "Unlock with PIN of the same user.",
+   "input": {
+    "pin": "string"
+   },
+   "output": "null",
+   "errors": [
+    "FORBIDDEN"
+   ]
+  },
+  {
+   "name": "auth.resetPin",
+   "who": "public",
+   "summary": "Forgot PIN: reset the OWNER PIN using the license code. Manager PIN is then reset by owner in settings.",
+   "input": {
+    "license_code": "string",
+    "new_pin": "string"
+   },
+   "output": "null",
+   "errors": [
+    "VALIDATION",
+    "LICENSE"
+   ],
+   "audit": "auth.resetPin"
+  },
+  {
+   "name": "auth.changePin",
+   "who": "both",
+   "summary": "Change own PIN (old PIN needed). Owner may reset manager PIN via users.setPin.",
+   "input": {
+    "old_pin": "string",
+    "new_pin": "string"
+   },
+   "output": "null",
+   "errors": [
+    "FORBIDDEN",
+    "VALIDATION"
+   ],
+   "audit": "auth.changePin"
+  },
+  {
+   "name": "auth.requestApproval",
+   "who": "both",
+   "summary": "Manager (or owner for sensitive actions) enters OWNER PIN to obtain a single-use approval token, valid 2 minutes, bound to one scope. Pass it as `approval` to the next call.",
+   "input": {
+    "owner_pin": "string",
+    "scope": "enum(discount_override|cancel_invoice|reverse_payment|approve_return|edit_mode|stock_adjust|restore_backup|license_reveal)"
+   },
+   "output": {
+    "token": "string",
+    "expires_at": "ts",
+    "scope": "string"
+   },
+   "errors": [
+    "FORBIDDEN"
+   ],
+   "audit": "auth.approval"
+  },
+  {
+   "name": "users.list",
+   "who": "owner",
+   "summary": "Users with last login.",
+   "input": {},
+   "output": {
+    "rows": "[{id,name,role,last_login:ts?,active:bool}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "users.setPin",
+   "who": "owner",
+   "summary": "Reset another user's PIN (manager).",
+   "input": {
+    "user_id": "id",
+    "new_pin": "string"
+   },
+   "output": "null",
+   "errors": [
+    "NOT_FOUND",
+    "VALIDATION"
+   ],
+   "audit": "users.setPin"
+  },
+  {
+   "name": "users.update",
+   "who": "owner",
+   "summary": "Rename user, activate/deactivate manager.",
+   "input": {
+    "user_id": "id",
+    "name": "string?",
+    "active": "bool?"
+   },
+   "output": "User",
+   "errors": [
+    "NOT_FOUND"
+   ],
+   "audit": "users.update"
+  },
+  {
+   "name": "prefs.get",
+   "who": "both",
+   "summary": "Per-user UI preferences: language bn/en, theme light/dark/system, numerals, default invoice size, calculator state, game scores.",
+   "input": {},
+   "output": "Prefs",
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "prefs.set",
+   "who": "both",
+   "summary": "Patch own prefs (partial object; unknown keys rejected).",
+   "input": {
+    "patch": "Prefs (partial)"
+   },
+   "output": "Prefs",
+   "errors": [
+    "VALIDATION",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "notes": "No audit rows for prefs (noise). Calculator history is capped at 20 entries, game scores store best score only."
+  },
+  {
+   "name": "settings.get",
+   "who": "both",
+   "summary": "Shop settings. Manager gets only keys flagged public.",
+   "input": {
+    "keys": "[string]?"
+   },
+   "output": "{[key]: any}",
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "public keys only"
+  },
+  {
+   "name": "settings.set",
+   "who": "owner",
+   "summary": "Patch settings. Keys: business.*, invoice.footer, invoice.default_size, discount.require_pin_over_cap, returns.manager_needs_approval, cancel.manager_needs_approval, credit.mode(warn|block), expiry.warn_days, stock.low_default_days, lock.idle_minutes, games.enabled, games.manager_enabled, calc.enabled, commission.enabled, numerals.default.",
+   "input": {
+    "patch": "{[key]: any}"
+   },
+   "output": "{[key]: any}",
+   "errors": [
+    "VALIDATION",
+    "FORBIDDEN"
+   ],
+   "audit": "settings.set"
+  },
+  {
+   "name": "companies.list",
+   "who": "both",
+   "summary": "Companies (suppliers). Manager gets id+name only.",
+   "input": {
+    "q": "string?"
+   },
+   "output": {
+    "rows": "[Company]"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "no due/phone"
+  },
+  {
+   "name": "companies.save",
+   "who": "owner",
+   "summary": "Create or update a company.",
+   "input": {
+    "id": "id?",
+    "name": "string",
+    "phone": "string?",
+    "opening_due": "money?"
+   },
+   "output": "Company",
+   "errors": [
+    "VALIDATION",
+    "DUPLICATE"
+   ],
+   "audit": "companies.save"
+  },
+  {
+   "name": "companies.ledger",
+   "who": "owner",
+   "summary": "Company ledger: purchases, payments, commission received.",
+   "input": {
+    "company_id": "id",
+    "from": "date?",
+    "to": "date?"
+   },
+   "output": {
+    "rows": "[LedgerRow]",
+    "due": "money"
+   },
+   "errors": [
+    "NOT_FOUND"
+   ]
+  },
+  {
+   "name": "products.list",
+   "who": "both",
+   "summary": "Inventory grid data. Server-side filter, sort, page. All 75..5000 rows fit one page of up to 5000.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "q": "string?",
+    "company_id": "id?",
+    "status": "enum(ok|low|out|near_expiry)?",
+    "sort": "{key:string, dir:enum(asc|desc)}?",
+    "include_archived": "bool?"
+   },
+   "output": {
+    "rows": "[Product]",
+    "page": "PageOut",
+    "totals": {
+     "count": "int",
+     "stock_cartons": "int",
+     "stock_value": "money?  (OWNER ONLY)"
+    }
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "cost_price, margin_bp, min_sell_price, stock_value omitted"
+  },
+  {
+   "name": "products.get",
+   "who": "both",
+   "summary": "One product with lots, month-wise received vs remaining, 30-day series.",
+   "input": {
+    "id": "id"
+   },
+   "output": {
+    "product": "Product",
+    "lots": "[Lot]",
+    "by_month": "[{month:string, received:Qty, remaining:Qty}]",
+    "sold30": "[{date:date, qty_base:int, discount:money?, profit:money?}]"
+   },
+   "errors": [
+    "NOT_FOUND"
+   ],
+   "manager_view": "lot.unit_cost and profit omitted"
+  },
+  {
+   "name": "products.save",
+   "who": "owner",
+   "summary": "Create/update one product (form).",
+   "input": {
+    "id": "id?",
+    "sku": "string",
+    "name": "string",
+    "company_id": "id?",
+    "sell_mode": "enum(carton_pcs|by_kg)",
+    "pcs_per_carton": "int?",
+    "pcs_per_dozen": "int?",
+    "grams_per_carton": "int?",
+    "list_price": "money",
+    "cost_price": "money?",
+    "max_discount": {
+     "per_unit": "money",
+     "percent_bp": "int?"
+    },
+    "min_sell_price": "money?",
+    "min_stock": "QtyIn?"
+   },
+   "output": "Product",
+   "errors": [
+    "VALIDATION",
+    "DUPLICATE",
+    "NOT_FOUND"
+   ],
+   "audit": "products.save"
+  },
+  {
+   "name": "products.archive",
+   "who": "owner",
+   "summary": "Archive (never hard-delete a sold product).",
+   "input": {
+    "id": "id",
+    "archived": "bool"
+   },
+   "output": "null",
+   "errors": [
+    "NOT_FOUND"
+   ],
+   "audit": "products.archive"
+  },
+  {
+   "name": "products.validate",
+   "who": "both",
+   "summary": "Dry-run validation of a value before commit (grid cell).",
+   "input": {
+    "id": "id",
+    "field": "string",
+    "value": "any"
+   },
+   "output": {
+    "ok": "bool",
+    "normalized": "any?",
+    "message": "string?"
+   },
+   "errors": [
+    "NOT_FOUND"
+   ]
+  },
+  {
+   "name": "editmode.enable",
+   "who": "owner",
+   "summary": "Turn on manual edit mode. Owner PIN required each time; auto-off after idle/lock/logout. After 21:00-06:00 the audit row is flagged.",
+   "input": {
+    "owner_pin": "string"
+   },
+   "output": {
+    "edit_token": "string",
+    "expires_at": "ts"
+   },
+   "errors": [
+    "FORBIDDEN"
+   ],
+   "audit": "editmode.enable (flag if after hours)"
+  },
+  {
+   "name": "editmode.disable",
+   "who": "owner",
+   "summary": "Turn off edit mode.",
+   "input": {},
+   "output": "null",
+   "errors": [],
+   "audit": "editmode.disable"
+  },
+  {
+   "name": "grid.applyBatch",
+   "who": "owner",
+   "summary": "Atomic batch of cell edits or an Excel paste. Requires edit mode. Stock cells are converted to stock adjustments (delta + reason). Returns per-row result and the inverse batch for Ctrl+Z.",
+   "input": {
+    "edits": "[{product_id:id, field:enum(list_price|cost_price|max_discount_per_unit|min_stock|stock|pcs_per_carton|grams_per_carton|min_sell_price|name|sku), value:any, reason:string?}]",
+    "dry_run": "bool?"
+   },
+   "output": {
+    "results": "[{index:int, ok:bool, code:string?, message:string?, old:any?, new:any?}]",
+    "applied": "int",
+    "inverse": "[same as edits]?"
+   },
+   "errors": [
+    "LOCKED",
+    "VALIDATION"
+   ],
+   "audit": "one audit row per changed cell (old, new, reason); stock deltas flagged"
+  },
+  {
+   "name": "stock.adjust",
+   "who": "owner",
+   "summary": "Explicit stock adjustment: +/- delta with reason, creates/consumes a lot (adjustment lot, unit cost = last cost).",
+   "input": {
+    "product_id": "id",
+    "delta": "QtyIn",
+    "sign": "enum(plus|minus)",
+    "reason": "string",
+    "received_date": "date?",
+    "expiry_date": "date?"
+   },
+   "output": {
+    "stock": "Qty"
+   },
+   "errors": [
+    "VALIDATION",
+    "STOCK",
+    "LOCKED"
+   ],
+   "audit": "stock.adjust (flag)"
+  },
+  {
+   "name": "stock.count.submit",
+   "who": "both",
+   "summary": "Physical count. Manager can submit counts, never fix stock.",
+   "input": {
+    "date": "date",
+    "lines": "[{product_id:id, counted:QtyIn}]"
+   },
+   "output": {
+    "count_id": "id"
+   },
+   "errors": [
+    "VALIDATION",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "stock.count.submit"
+  },
+  {
+   "name": "stock.count.list",
+   "who": "owner",
+   "summary": "Counts with expected vs counted and value of difference.",
+   "input": {
+    "from": "date?",
+    "to": "date?"
+   },
+   "output": {
+    "rows": "[{count_id:id, date:date, by:string, lines:[{product_id:id, name:string, expected:Qty, counted:Qty, diff:Qty, diff_value:money}]}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "import.pickFile",
+   "who": "owner",
+   "summary": "Open native file dialog (main process) and return a handle. UI never sees raw paths.",
+   "input": {
+    "kind": "enum(products_csv|products_xlsx)"
+   },
+   "output": {
+    "handle": "string",
+    "name": "string",
+    "bytes": "int"
+   },
+   "errors": [
+    "NOT_FOUND"
+   ]
+  },
+  {
+   "name": "import.preview",
+   "who": "owner",
+   "summary": "Parse and validate an import file (untrusted). Never writes.",
+   "input": {
+    "handle": "string",
+    "mapping": "{[column]: string}?"
+   },
+   "output": {
+    "columns": "[string]",
+    "suggested_mapping": "{[column]: string}",
+    "valid": "int",
+    "issues": "[{row:int, sku:string?, severity:enum(error|warning), kind:enum(missing_company|missing_price|missing_size|missing_pcs_per_carton|duplicate_name|duplicate_sku|bad_number|formula_cell), message:string}]",
+    "sample": "[any]"
+   },
+   "errors": [
+    "VALIDATION"
+   ]
+  },
+  {
+   "name": "import.commit",
+   "who": "owner",
+   "summary": "Insert valid rows, skip or fix issue rows by owner resolution. Atomic.",
+   "input": {
+    "handle": "string",
+    "mapping": "{[column]: string}",
+    "resolutions": "[{row:int, action:enum(skip|import_as_is|set), values:any?}]",
+    "mode": "enum(insert_only|upsert_by_sku)"
+   },
+   "output": {
+    "inserted": "int",
+    "updated": "int",
+    "skipped": "int",
+    "report_handle": "string?"
+   },
+   "errors": [
+    "VALIDATION",
+    "DB"
+   ],
+   "audit": "import.commit"
+  },
+  {
+   "name": "export.table",
+   "who": "owner",
+   "summary": "Export a table to CSV/XLSX file via save dialog. Cells starting with = + - @ are escaped.",
+   "input": {
+    "table": "enum(products|customers|sales|payments|audit|lots)",
+    "format": "enum(csv|xlsx)",
+    "filters": "any?"
+   },
+   "output": {
+    "saved_to": "string"
+   },
+   "errors": [
+    "FORBIDDEN"
+   ],
+   "audit": "export.table"
+  },
+  {
+   "name": "lots.list",
+   "who": "both",
+   "summary": "Lots, optionally grouped. Remaining only for manager (no cost).",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "product_id": "id?",
+    "group_by": "enum(received_month|expiry_month)?",
+    "near_expiry_days": "int?",
+    "only_remaining": "bool?"
+   },
+   "output": {
+    "rows": "[Lot]",
+    "groups": "[{key:string, label:string, received:Qty, remaining:Qty}]?",
+    "page": "PageOut"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "unit_cost omitted"
+  },
+  {
+   "name": "purchases.create",
+   "who": "owner",
+   "summary": "Receive goods from a company: creates one lot per line, raises stock, company due. Optional payment now.",
+   "input": {
+    "company_id": "id",
+    "date": "date",
+    "supplier_invoice": "string?",
+    "lines": "[{product_id:id, qty:QtyIn, unit_cost:money  (per carton or per kg), received_date:date?, expiry_date:date?}]",
+    "paid_now": "{amount:money, method:string}?"
+   },
+   "output": {
+    "purchase": "{id:id, no:string, total:money, due:money, lots:[Lot]}"
+   },
+   "errors": [
+    "VALIDATION",
+    "NOT_FOUND"
+   ],
+   "audit": "purchases.create"
+  },
+  {
+   "name": "purchases.list",
+   "who": "owner",
+   "summary": "Purchases.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "company_id": "id?",
+    "from": "date?",
+    "to": "date?"
+   },
+   "output": {
+    "rows": "[{id:id, no:string, date:date, company:string, lines:int, total:money, paid:money, due:money}]",
+    "page": "PageOut"
+   },
+   "errors": []
+  },
+  {
+   "name": "purchases.get",
+   "who": "owner",
+   "summary": "One purchase with lines and lots.",
+   "input": {
+    "id": "id"
+   },
+   "output": {
+    "purchase": "any"
+   },
+   "errors": [
+    "NOT_FOUND"
+   ]
+  },
+  {
+   "name": "purchases.cancel",
+   "who": "owner",
+   "summary": "Cancel a purchase only if none of its lots has been sold. Needs approval(owner PIN re-entry).",
+   "input": {
+    "id": "id",
+    "reason": "string"
+   },
+   "output": "null",
+   "errors": [
+    "STATE",
+    "NEEDS_OWNER_PIN"
+   ],
+   "audit": "purchases.cancel (flag)"
+  },
+  {
+   "name": "sales.preview",
+   "who": "both",
+   "summary": "Compute lines, discounts, FEFO lots and totals WITHOUT saving. The UI shows exactly these numbers; it does no arithmetic.",
+   "input": {
+    "customer_id": "id",
+    "lines": "[SaleLineIn]",
+    "invoice_discount": "{type:enum(none|percent|amount), value:int}?",
+    "pay_now": "money?"
+   },
+   "output": {
+    "lines": "[SaleLine]",
+    "totals": "SaleTotals"
+   },
+   "errors": [
+    "VALIDATION",
+    "STOCK",
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "cost/profit omitted"
+  },
+  {
+   "name": "sales.create",
+   "who": "both",
+   "summary": "Save an invoice. Re-validates everything server-side; role and discount limits enforced here regardless of UI.",
+   "input": {
+    "customer_id": "id",
+    "date": "date?  (owner may back-date within settings; manager today only)",
+    "lines": "[SaleLineIn]",
+    "invoice_discount": "{type:string, value:int}?",
+    "payment": "{amount:money, method:enum(cash|bkash|nagad|bank|cheque), ref:string?}?",
+    "salesman_id": "id?",
+    "approval": "Approval?  (required if any line is over cap / below min price / over credit limit(block))"
+   },
+   "output": {
+    "sale": "Sale",
+    "payment": "Payment?"
+   },
+   "errors": [
+    "VALIDATION",
+    "STOCK",
+    "NEEDS_OWNER_PIN",
+    "DISCOUNT_LIMIT",
+    "CREDIT_LIMIT",
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "notes": "Single DB transaction: invoice no (gapless), lines with price/discount/cost snapshots, lot deductions (FEFO then FIFO) into sale_item_lots, ledger entry, optional payment + allocation, audit rows. Over-cap with valid approval writes discount_overrides + flagged audit row.",
+   "audit": "sales.create; sales.override (flag) if approval used"
+  },
+  {
+   "name": "sales.list",
+   "who": "both",
+   "summary": "Invoices. Manager sees own invoices of today and the last 2 days only.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "q": "string?",
+    "from": "date?",
+    "to": "date?",
+    "customer_id": "id?",
+    "status": "string?",
+    "user_id": "id?"
+   },
+   "output": {
+    "rows": "[{id:id, invoice_no:string, ts:ts, customer:string, lines:int, total:money, paid:money, due:money, status:string, created_by:string, has_override:bool}]",
+    "page": "PageOut"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "own + last 2 days"
+  },
+  {
+   "name": "sales.get",
+   "who": "both",
+   "summary": "Full invoice.",
+   "input": {
+    "id": "id"
+   },
+   "output": "Sale",
+   "errors": [
+    "NOT_FOUND",
+    "FORBIDDEN",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "cost/profit omitted; only own"
+  },
+  {
+   "name": "sales.cancel",
+   "who": "both",
+   "summary": "Cancel an invoice: stock returns to the same lots, ledger reversed, payment reversal rows created. Reason required. Manager cancels flag the audit and (setting) wait for owner approval.",
+   "input": {
+    "id": "id",
+    "reason": "string",
+    "approval": "Approval?"
+   },
+   "output": "Sale",
+   "errors": [
+    "STATE",
+    "NEEDS_OWNER_PIN",
+    "VALIDATION",
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "sales.cancel (flag always)"
+  },
+  {
+   "name": "invoice.data",
+   "who": "both",
+   "summary": "Everything needed to render the invoice image/PDF. print_count increments when mark_printed is true; second and later outputs are watermarked COPY.",
+   "input": {
+    "sale_id": "id",
+    "size": "enum(58|80|a4)",
+    "language": "enum(bn|en|both)?",
+    "mark_printed": "bool?"
+   },
+   "output": "Invoice",
+   "errors": [
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "files.saveBytes",
+   "who": "both",
+   "summary": "Save rendered bytes (PDF/PNG) to the user's invoice folder or via Save dialog. Main process writes; renderer never gets a path it can reuse.",
+   "input": {
+    "suggested_name": "string",
+    "mime": "enum(application/pdf|image/png)",
+    "bytes_b64": "string",
+    "where": "enum(default_folder|dialog)"
+   },
+   "output": {
+    "saved_to": "string"
+   },
+   "errors": [
+    "DB",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "notes": "Used for invoices, receipts, statements."
+  },
+  {
+   "name": "files.share",
+   "who": "both",
+   "summary": "Open the OS share/explorer-select for a saved file (WhatsApp Web friendly).",
+   "input": {
+    "path": "string  (must come from files.saveBytes this session)"
+   },
+   "output": "null",
+   "errors": [
+    "NOT_FOUND"
+   ]
+  },
+  {
+   "name": "printer.list",
+   "who": "both",
+   "summary": "Reserved. Returns installed system printers and adapters; empty until adapters exist.",
+   "input": {},
+   "output": {
+    "adapters": "[{id:string, kind:enum(system|bluetooth|usb|network), name:string, paper:[string]}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "printer.print",
+   "who": "both",
+   "summary": "Reserved: send a rendered PNG to an adapter. Returns UNSUPPORTED until printers are bought.",
+   "input": {
+    "adapter_id": "string",
+    "png_b64": "string",
+    "copies": "int?"
+   },
+   "output": "null",
+   "errors": [
+    "UNSUPPORTED"
+   ]
+  },
+  {
+   "name": "returns.create",
+   "who": "both",
+   "summary": "Return request. Owner's returns apply immediately; manager's wait for owner approval (setting).",
+   "input": {
+    "sale_id": "id",
+    "lines": "[{sale_item_id:id, qty:QtyIn}]",
+    "reason": "enum(expired|damaged|unsold|wrong_item|other)",
+    "note": "string?",
+    "destination": "enum(good|damaged)",
+    "refund": "enum(ledger|cash)"
+   },
+   "output": {
+    "return": "{id:id, no:string, status:enum(pending|approved|rejected), value:money}"
+   },
+   "errors": [
+    "VALIDATION",
+    "STATE",
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "returns.create (flag)"
+  },
+  {
+   "name": "returns.list",
+   "who": "both",
+   "summary": "Returns. Manager sees own.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "status": "string?",
+    "from": "date?",
+    "to": "date?"
+   },
+   "output": {
+    "rows": "[{id:id, no:string, ts:ts, sale_no:string, customer:string, product:string, qty:Qty, reason:string, destination:string, value:money, status:string, created_by:string}]",
+    "page": "PageOut"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "returns.approve",
+   "who": "owner",
+   "summary": "Approve: good stock goes back into the original lots, damaged goes to loss; customer ledger credited.",
+   "input": {
+    "id": "id",
+    "approval": "Approval?"
+   },
+   "output": "null",
+   "errors": [
+    "STATE",
+    "NOT_FOUND"
+   ],
+   "audit": "returns.approve (flag)"
+  },
+  {
+   "name": "returns.reject",
+   "who": "owner",
+   "summary": "Reject with reason.",
+   "input": {
+    "id": "id",
+    "reason": "string"
+   },
+   "output": "null",
+   "errors": [
+    "STATE",
+    "NOT_FOUND"
+   ],
+   "audit": "returns.reject"
+  },
+  {
+   "name": "customers.list",
+   "who": "both",
+   "summary": "Shops with due, limit usage, aging.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "q": "string?",
+    "area": "string?",
+    "route": "string?",
+    "has_due": "bool?",
+    "sort": "string?"
+   },
+   "output": {
+    "rows": "[CustomerRow]",
+    "page": "PageOut",
+    "total_due": "money"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "customers.save",
+   "who": "both",
+   "summary": "Create (manager+owner) or update (owner only; manager may not change credit limit).",
+   "input": {
+    "id": "id?",
+    "name": "string",
+    "owner": "string?",
+    "phone": "string?",
+    "area": "string?",
+    "address": "string?",
+    "route": "string?",
+    "credit_limit": "money?",
+    "opening_due": "money?  (create only)"
+   },
+   "output": "CustomerRow",
+   "errors": [
+    "VALIDATION",
+    "DUPLICATE",
+    "FORBIDDEN",
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "customers.save"
+  },
+  {
+   "name": "customers.ledger",
+   "who": "both",
+   "summary": "Ledger rows with running balance and aging buckets.",
+   "input": {
+    "customer_id": "id",
+    "from": "date?",
+    "to": "date?"
+   },
+   "output": {
+    "rows": "[LedgerRow]",
+    "due": "money",
+    "aging": "{d0_7:money, d8_30:money, d31_60:money, d60p:money}",
+    "open_items": "[{ref:string, date:date, left:money}]"
+   },
+   "errors": [
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "customers.statement",
+   "who": "both",
+   "summary": "Data for a customer statement PDF.",
+   "input": {
+    "customer_id": "id",
+    "from": "date",
+    "to": "date",
+    "language": "enum(bn|en|both)?"
+   },
+   "output": {
+    "business": "any",
+    "customer": "CustomerRow",
+    "rows": "[LedgerRow]",
+    "opening": "money",
+    "closing": "money"
+   },
+   "errors": [
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "customers.dueList",
+   "who": "both",
+   "summary": "Who to chase today: due, days overdue, last payment; includes a ready reminder text (bn/en). Sending SMS is out of scope.",
+   "input": {
+    "min_days": "int?",
+    "route": "string?"
+   },
+   "output": {
+    "rows": "[{customer:CustomerRow, reminder:{bn:string, en:string}}]"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "payments.receive",
+   "who": "both",
+   "summary": "RECEIVE money from a customer. Allocation default auto_oldest (oldest unpaid invoice / opening due first). Cannot exceed due unless allocation.mode=on_account (owner only, creates credit). Cheque creates a pending cheque row.",
+   "input": {
+    "customer_id": "id",
+    "amount": "money",
+    "method": "enum(cash|bkash|nagad|bank|cheque)",
+    "date": "date?  (owner may back-date)",
+    "ref": "string?  (bKash trx id, bank ref)",
+    "note": "string?",
+    "allocation": "{mode:enum(auto_oldest|manual|on_account), items:[{sale_id:id?, opening:bool?, amount:money}]?}?",
+    "cheque": "{no:string, bank:string?, deposit_date:date?}?"
+   },
+   "output": {
+    "payment": "Payment",
+    "customer_due_before": "money",
+    "customer_due_after": "money",
+    "receipt": "Receipt"
+   },
+   "errors": [
+    "VALIDATION",
+    "FORBIDDEN",
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "notes": "Gapless receipt numbers RCV-00001. Ledger credit entry + payment_allocations rows in one transaction. Manager's payments carry created_by for the day book and cash close.",
+   "audit": "payments.receive"
+  },
+  {
+   "name": "payments.preview",
+   "who": "both",
+   "summary": "Show how an amount would be allocated, without saving.",
+   "input": {
+    "customer_id": "id",
+    "amount": "money",
+    "allocation": "any?"
+   },
+   "output": {
+    "allocations": "[{ref:string, date:date, due:money, applied:money}]",
+    "due_after": "money"
+   },
+   "errors": [
+    "NOT_FOUND",
+    "VALIDATION",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "payments.list",
+   "who": "both",
+   "summary": "Payments received (and for owner: paid to companies). Manager sees only own.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "party_type": "enum(customer|company)?",
+    "customer_id": "id?",
+    "method": "string?",
+    "status": "string?",
+    "from": "date?",
+    "to": "date?",
+    "user_id": "id?",
+    "q": "string?"
+   },
+   "output": {
+    "rows": "[Payment]",
+    "page": "PageOut",
+    "totals": "{by_method:{[m]:money}, grand:money}"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "party_type=customer, own only"
+  },
+  {
+   "name": "payments.get",
+   "who": "both",
+   "summary": "One payment.",
+   "input": {
+    "id": "id"
+   },
+   "output": "Payment",
+   "errors": [
+    "NOT_FOUND",
+    "FORBIDDEN",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "payments.receipt",
+   "who": "both",
+   "summary": "Receipt data (58/80/A4). Render in UI like invoices; reprint is marked COPY.",
+   "input": {
+    "payment_id": "id",
+    "size": "enum(58|80|a4)",
+    "language": "enum(bn|en|both)?",
+    "mark_printed": "bool?"
+   },
+   "output": "Receipt",
+   "errors": [
+    "NOT_FOUND",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "payments.reverse",
+   "who": "owner",
+   "summary": "Reverse a payment (wrong amount, bounced). Never deletes: writes a reversing ledger row, re-opens the allocated invoices, original stays visible as REVERSED. Owner PIN + reason.",
+   "input": {
+    "id": "id",
+    "reason": "string",
+    "approval": "Approval?"
+   },
+   "output": "Payment",
+   "errors": [
+    "STATE",
+    "NEEDS_OWNER_PIN",
+    "NOT_FOUND",
+    "VALIDATION"
+   ],
+   "audit": "payments.reverse (flag)"
+  },
+  {
+   "name": "payments.dayBook",
+   "who": "both",
+   "summary": "Collection for one day: by method, by collector, count. Manager sees own only.",
+   "input": {
+    "date": "date"
+   },
+   "output": {
+    "by_method": "{[m]:money}",
+    "by_user": "[{user:string, amount:money, count:int}]",
+    "total": "money",
+    "cash_in_hand_expected": "money?  (owner: cash received minus cash expenses)"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "own rows only"
+  },
+  {
+   "name": "payments.cheques.list",
+   "who": "owner",
+   "summary": "Cheques with status.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "status": "enum(pending|cleared|bounced)?"
+   },
+   "output": {
+    "rows": "[{id:id, payment_id:id, no:string, bank:string?, customer:string, amount:money, deposit_date:date?, status:string}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "payments.cheques.setStatus",
+   "who": "owner",
+   "summary": "Mark cleared or bounced. Bounced reverses the payment (ledger re-opens).",
+   "input": {
+    "id": "id",
+    "status": "enum(cleared|bounced)",
+    "note": "string?"
+   },
+   "output": "null",
+   "errors": [
+    "STATE",
+    "NOT_FOUND"
+   ],
+   "audit": "cheque status (bounced = flag)"
+  },
+  {
+   "name": "payments.payCompany",
+   "who": "owner",
+   "summary": "PAY money to a company (reduces company due). Optionally allocate to purchases.",
+   "input": {
+    "company_id": "id",
+    "amount": "money",
+    "method": "string",
+    "date": "date?",
+    "ref": "string?",
+    "note": "string?",
+    "allocation": "{items:[{purchase_id:id, amount:money}]}?"
+   },
+   "output": {
+    "payment": "Payment",
+    "company_due_after": "money"
+   },
+   "errors": [
+    "VALIDATION",
+    "NOT_FOUND"
+   ],
+   "audit": "payments.payCompany"
+  },
+  {
+   "name": "employees.list",
+   "who": "owner",
+   "summary": "Employees with salary, advance, this-month status, 7-day sales.",
+   "input": {},
+   "output": {
+    "rows": "[{id:id, name:string, role:string, phone:string?, van:string?, salary:money, advance:money, paid_this_month:bool, sold_7d:money}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "employees.save",
+   "who": "owner",
+   "summary": "Create/update employee.",
+   "input": {
+    "id": "id?",
+    "name": "string",
+    "role": "string",
+    "phone": "string?",
+    "van": "string?",
+    "salary": "money"
+   },
+   "output": "any",
+   "errors": [
+    "VALIDATION"
+   ],
+   "audit": "employees.save"
+  },
+  {
+   "name": "employees.paySalary",
+   "who": "owner",
+   "summary": "Pay salary, net of advance. Also creates an expense row type=salary.",
+   "input": {
+    "employee_id": "id",
+    "month": "string (YYYY-MM)",
+    "method": "string?"
+   },
+   "output": "{net:money}",
+   "errors": [
+    "STATE",
+    "NOT_FOUND"
+   ],
+   "audit": "employees.paySalary"
+  },
+  {
+   "name": "employees.advance",
+   "who": "owner",
+   "summary": "Give an advance.",
+   "input": {
+    "employee_id": "id",
+    "amount": "money",
+    "note": "string?"
+   },
+   "output": "null",
+   "errors": [
+    "VALIDATION",
+    "NOT_FOUND"
+   ],
+   "audit": "employees.advance"
+  },
+  {
+   "name": "expenses.create",
+   "who": "both",
+   "summary": "Add an expense. Append-only.",
+   "input": {
+    "type": "string",
+    "amount": "money",
+    "note": "string?",
+    "date": "date?  (owner back-date only)"
+   },
+   "output": "any",
+   "errors": [
+    "VALIDATION",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "expenses.create"
+  },
+  {
+   "name": "expenses.list",
+   "who": "both",
+   "summary": "Expenses. Manager sees own, today only.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "from": "date?",
+    "to": "date?",
+    "type": "string?"
+   },
+   "output": {
+    "rows": "[{id:id, ts:ts, type:string, amount:money, note:string?, created_by:string}]",
+    "page": "PageOut",
+    "total": "money"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "own, today"
+  },
+  {
+   "name": "loadsheet.get",
+   "who": "both",
+   "summary": "Today's van load sheet with loaded / sold / returned / expected / counted / shortage (+ value).",
+   "input": {
+    "date": "date",
+    "van": "string?"
+   },
+   "output": {
+    "id": "id?",
+    "lines": "[{product_id:id, name:string, loaded:Qty, sold:Qty, returned:Qty, expected:Qty, counted:Qty?, diff:Qty?, diff_value:money?}]",
+    "submitted": "bool",
+    "shortage_value": "money"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "loadsheet.setLoaded",
+   "who": "both",
+   "summary": "Morning: set loaded quantities.",
+   "input": {
+    "date": "date",
+    "van": "string?",
+    "lines": "[{product_id:id, loaded:QtyIn}]"
+   },
+   "output": "null",
+   "errors": [
+    "VALIDATION",
+    "STOCK",
+    "LOCKED",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "loadsheet.setLoaded"
+  },
+  {
+   "name": "loadsheet.submit",
+   "who": "both",
+   "summary": "Evening: submit counted quantities. Shortages are flagged. Locks the sheet.",
+   "input": {
+    "date": "date",
+    "van": "string?",
+    "counted": "[{product_id:id, counted:QtyIn}]"
+   },
+   "output": {
+    "shortage_value": "money",
+    "flagged": "bool"
+   },
+   "errors": [
+    "VALIDATION",
+    "LOCKED",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "loadsheet.submit (flag if shortage)"
+  },
+  {
+   "name": "cash.expected",
+   "who": "both",
+   "summary": "Expected cash in hand for a date = cash received - cash expenses (opening drawer optional).",
+   "input": {
+    "date": "date"
+   },
+   "output": {
+    "by_method": "{[m]:money}",
+    "expenses": "money",
+    "expected_cash": "money",
+    "closed": "bool"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ]
+  },
+  {
+   "name": "cash.close",
+   "who": "both",
+   "summary": "Close the day with counted cash. Difference is stored and flagged when not zero.",
+   "input": {
+    "date": "date",
+    "counted": "money",
+    "note": "string?"
+   },
+   "output": {
+    "expected": "money",
+    "counted": "money",
+    "difference": "money"
+   },
+   "errors": [
+    "STATE",
+    "VALIDATION",
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "audit": "cash.close (flag if diff)"
+  },
+  {
+   "name": "cash.history",
+   "who": "owner",
+   "summary": "Past closes.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?"
+   },
+   "output": {
+    "rows": "[{date:date, expected:money, counted:money, difference:money, by:string, note:string?}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "commission.rules.list",
+   "who": "owner",
+   "summary": "Company commission rules.",
+   "input": {},
+   "output": {
+    "rows": "[{id:id, company_id:id?, name:string, basis:enum(net_kg_sold), period:enum(month|quarter|year), scope:enum(all_tea|group|product), type:enum(per_kg|slab), per_kg:money?, slabs:[{from_kg:int, to_kg:int?, rate_per_kg:money}], active:bool}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "commission.rules.save",
+   "who": "owner",
+   "summary": "Create/update a rule (rates are NOT hard-coded; demo slabs 4/6/8 are sample data).",
+   "input": {
+    "id": "id?",
+    "company_id": "id?",
+    "name": "string",
+    "period": "string",
+    "scope": "string",
+    "scope_ref": "id?",
+    "type": "string",
+    "per_kg": "money?",
+    "slabs": "[any]?",
+    "active": "bool?"
+   },
+   "output": "any",
+   "errors": [
+    "VALIDATION"
+   ],
+   "audit": "commission.rules.save"
+  },
+  {
+   "name": "commission.status",
+   "who": "owner",
+   "summary": "Current period: net kg (sales minus returns minus cancelled), band, estimated amount, kg to next band.",
+   "input": {
+    "rule_id": "id?",
+    "period_start": "date?"
+   },
+   "output": {
+    "net_kg": "string",
+    "estimate": "money",
+    "bands": "[{from_kg:int, to_kg:int?, rate_per_kg:money, kg_in_band:string, amount:money}]",
+    "to_next_kg": "string?",
+    "by_product": "[{product_id:id, name:string, kg:string}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "commission.accruals.list",
+   "who": "owner",
+   "summary": "Closed periods with amount and status.",
+   "input": {},
+   "output": {
+    "rows": "[{id:id, period:string, net_kg:string, amount:money, status:enum(accruing|due|received), received_date:date?}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "commission.accruals.markReceived",
+   "who": "owner",
+   "summary": "Mark received (cash or settled against company due).",
+   "input": {
+    "id": "id",
+    "date": "date?",
+    "settle": "enum(cash|against_company_due)"
+   },
+   "output": "null",
+   "errors": [
+    "STATE",
+    "NOT_FOUND"
+   ],
+   "audit": "commission.received"
+  },
+  {
+   "name": "dashboard.summary",
+   "who": "both",
+   "summary": "KPI block for a range. Manager gets only own-day numbers.",
+   "input": {
+    "from": "date",
+    "to": "date"
+   },
+   "output": {
+    "sales": "money",
+    "invoices": "int",
+    "collected": "money",
+    "collected_by_method": "{[m]:money}",
+    "new_due": "money",
+    "total_due": "money",
+    "discount_total": "money?",
+    "discount_per_carton_avg": "money?",
+    "returns_value": "money",
+    "expenses": "money",
+    "expected_cash": "money",
+    "profit": "money?  (OWNER ONLY)",
+    "tea_net_kg": "string?  (OWNER ONLY)",
+    "commission_estimate": "money?  (OWNER ONLY)"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "own sales/collected/expenses only"
+  },
+  {
+   "name": "dashboard.discounts",
+   "who": "owner",
+   "summary": "Discount breakdown, grouped.",
+   "input": {
+    "from": "date",
+    "to": "date",
+    "group_by": "enum(product|per_carton|user|customer|invoice)"
+   },
+   "output": {
+    "rows": "[{key:string, label:string, amount:money, qty:Qty?, avg_per_carton:money?, invoices:int}]",
+    "total": "money"
+   },
+   "errors": []
+  },
+  {
+   "name": "dashboard.series",
+   "who": "owner",
+   "summary": "Time series for charts.",
+   "input": {
+    "from": "date",
+    "to": "date",
+    "metric": "enum(sales|collected|due|expenses|discount|profit|returns)",
+    "product_id": "id?",
+    "customer_id": "id?",
+    "area": "string?",
+    "bucket": "enum(day|week|month)"
+   },
+   "output": {
+    "points": "[{date:date, value:int}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "dashboard.productChart",
+   "who": "owner",
+   "summary": "Per-product chart data: sales, discount, profit, stock level over time.",
+   "input": {
+    "product_id": "id",
+    "from": "date",
+    "to": "date"
+   },
+   "output": {
+    "sold": "[{date:date,qty_base:int}]",
+    "discount": "[{date:date,amount:money}]",
+    "profit": "[{date:date,amount:money}]",
+    "stock": "[{date:date,qty_base:int}]",
+    "stats": {
+     "total": "Qty",
+     "per_day": "Qty",
+     "days_left": "int?"
+    }
+   },
+   "errors": [
+    "NOT_FOUND"
+   ]
+  },
+  {
+   "name": "dashboard.flags",
+   "who": "owner",
+   "summary": "Red flags: over-cap discounts, cancellations, returns, stock adjustments, count diffs, load-sheet shortages, cash differences, after-hours edits, clock moved back, payment reversals, bounced cheques.",
+   "input": {
+    "from": "date",
+    "to": "date",
+    "limit": "int?"
+   },
+   "output": {
+    "rows": "[{audit_id:id, ts:ts, kind:string, user:string, title:string, amount:money?}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "dashboard.alerts",
+   "who": "both",
+   "summary": "Low stock, out of stock, near expiry.",
+   "input": {
+    "limit": "int?"
+   },
+   "output": {
+    "low": "[{product:Product}]",
+    "out": "[{product:Product}]",
+    "near_expiry": "[{product_id:id, name:string, lot_id:id, days:int, remaining:Qty}]"
+   },
+   "errors": [
+    "UNAUTHENTICATED",
+    "LOCKED"
+   ],
+   "manager_view": "no values"
+  },
+  {
+   "name": "audit.list",
+   "who": "owner",
+   "summary": "Append-only audit log.",
+   "input": {
+    "limit": "int?",
+    "cursor": "string?",
+    "from": "date?",
+    "to": "date?",
+    "flag": "bool?",
+    "user_id": "id?",
+    "action": "string?",
+    "q": "string?"
+   },
+   "output": {
+    "rows": "[AuditRow]",
+    "page": "PageOut"
+   },
+   "errors": []
+  },
+  {
+   "name": "audit.verify",
+   "who": "owner",
+   "summary": "Walk the hash chain. Returns first broken id if tampered.",
+   "input": {},
+   "output": {
+    "ok": "bool",
+    "checked": "int",
+    "broken_at": "id?"
+   },
+   "errors": []
+  },
+  {
+   "name": "backup.list",
+   "who": "owner",
+   "summary": "Local backups (newest first) with size, counts, verified flag, drive status.",
+   "input": {},
+   "output": {
+    "rows": "[{id:string, ts:ts, bytes:int, products:int, invoices:int, verified:bool, drive:enum(none|queued|uploaded|failed)}]"
+   },
+   "errors": []
+  },
+  {
+   "name": "backup.create",
+   "who": "owner",
+   "summary": "Backup now (verify after write). Also runs automatically every N minutes, on close, and before restore/migration.",
+   "input": {
+    "reason": "string?"
+   },
+   "output": {
+    "id": "string"
+   },
+   "errors": [
+    "DB"
+   ],
+   "audit": "backup.create"
+  },
+  {
+   "name": "backup.restore",
+   "who": "owner",
+   "summary": "Verify then restore. Takes a safety backup first. App restarts the DB handle.",
+   "input": {
+    "id": "string",
+    "approval": "Approval"
+   },
+   "output": "null",
+   "errors": [
+    "NEEDS_OWNER_PIN",
+    "NOT_FOUND",
+    "DB"
+   ],
+   "audit": "backup.restore (flag)"
+  },
+  {
+   "name": "drive.status",
+   "who": "owner",
+   "summary": "Google Drive: connected account, online, queue length, last upload.",
+   "input": {},
+   "output": {
+    "connected": "bool",
+    "account": "string?",
+    "online": "bool",
+    "queued": "int",
+    "last_upload": "ts?"
+   },
+   "errors": []
+  },
+  {
+   "name": "drive.connect",
+   "who": "owner",
+   "summary": "Start OAuth (system browser, loopback redirect, PKCE). Verify current Google desktop OAuth rules at implementation time.",
+   "input": {},
+   "output": {
+    "connected": "bool",
+    "account": "string"
+   },
+   "errors": [
+    "DB"
+   ],
+   "audit": "drive.connect"
+  },
+  {
+   "name": "drive.disconnect",
+   "who": "owner",
+   "summary": "Forget tokens.",
+   "input": {},
+   "output": "null",
+   "errors": [],
+   "audit": "drive.disconnect"
+  },
+  {
+   "name": "drive.uploadNow",
+   "who": "owner",
+   "summary": "Upload queued backups now (needs net).",
+   "input": {},
+   "output": {
+    "uploaded": "int",
+    "queued": "int"
+   },
+   "errors": []
+  },
+  {
+   "name": "system.info",
+   "who": "both",
+   "summary": "Versions and paths for the About box.",
+   "input": {},
+   "output": {
+    "app_version": "string",
+    "contract_version": "string",
+    "db_version": "int",
+    "data_dir": "string?  (owner)",
+    "now": "ts"
+   },
+   "errors": []
+  },
+  {
+   "name": "system.clockCheck",
+   "who": "both",
+   "summary": "Detect system date moved backwards since the last write. Called at start and hourly.",
+   "input": {},
+   "output": {
+    "ok": "bool",
+    "last_seen": "ts?",
+    "now": "ts"
+   },
+   "errors": [],
+   "notes": "When not ok the backend writes a flagged audit row and the UI shows a banner."
+  }
+ ],
+ "events": {
+  "_how": "window.api.on(name, cb) -> unsubscribe fn. Main process pushes, payload is small.",
+  "session.locked": "{reason: idle|manual}",
+  "net.status": "{online:bool}",
+  "drive.queue": "{queued:int}",
+  "backup.completed": "{id:string, ts:ts, drive:string}",
+  "clock.warning": "{last_seen:ts, now:ts}",
+  "license.changed": "{state:string}",
+  "stock.alert": "{low:int, out:int, near_expiry:int}"
+ }
+}

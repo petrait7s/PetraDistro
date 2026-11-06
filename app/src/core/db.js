@@ -1,0 +1,16 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),init=require('sql.js');
+const {fail}=require('./util');
+class Db{
+ static async open(file,opts={}){const SQL=await init({wasmBinary:fs.readFileSync(require.resolve('sql.js/dist/sql-wasm.wasm'))});const d=new Db();d.SQL=SQL;d.file=file;d.opts=opts;d.db=file&&fs.existsSync(file)?new SQL.Database(fs.readFileSync(file)):new SQL.Database();d.db.run('PRAGMA foreign_keys=ON');if(d.get('PRAGMA integrity_check').integrity_check!=='ok')fail('DB','Integrity check failed');d.migrate();return d;}
+ all(sql,params=[]){const s=this.db.prepare(sql);try{s.bind(params);const rows=[];while(s.step())rows.push(s.getAsObject());return rows;}finally{s.free();}}
+ get(sql,p=[]){return this.all(sql,p)[0]||null;}
+ run(sql,p=[]){this.db.run(sql,p);return this.get('SELECT last_insert_rowid() id').id;}
+ insert(table,obj){if(!/^[a-z_]+$/.test(table))throw Error('Table');const keys=Object.keys(obj);if(keys.some(k=>!/^\w+$/.test(k)))throw Error('Column');return this.run(`INSERT INTO ${table}(${keys.join(',')}) VALUES(${keys.map(()=>'?').join(',')})`,keys.map(k=>obj[k]===undefined?null:obj[k]));}
+ bytes(){const b=this.db.export();this.db.run('PRAGMA foreign_keys=ON');return b;}
+ migrate(){const dir=path.resolve(__dirname,'../../migrations');const files=fs.readdirSync(dir).filter(f=>/^\d+.*\.sql$/.test(f)).sort();let v=this.get('PRAGMA user_version').user_version;if(v>files.length)fail('DB','Database newer than application');for(const [i,f] of files.entries()){if(i+1<=v)continue;if(this.file&&fs.existsSync(this.file))fs.copyFileSync(this.file,this.file+'.before-migration-'+(i+1));this.tx(()=>{this.db.run(fs.readFileSync(path.join(dir,f),'utf8'));this.run('INSERT INTO schema_migrations(version,name,applied_at) VALUES(?,?,?)',[i+1,f,Date.now()]);this.db.run('PRAGMA user_version='+(i+1));});}}
+ tx(fn){if(this.poisoned)fail('DB','Persistence uncertain: restart required',{recoverable:true});if(this.inTx)return fn();const before=this.bytes();this.db.run('BEGIN IMMEDIATE');this.inTx=true;let committed=false;try{const result=fn();if(result&&typeof result.then==='function')throw Error('Async transaction forbidden');this.opts.hook?.('before_commit');this.db.run('COMMIT');committed=true;this.inTx=false;this.opts.hook?.('after_commit');this.persist();return result;}catch(e){this.inTx=false;if(!committed){try{this.db.run('ROLLBACK');}catch{}}else{this.db.close();this.db=new this.SQL.Database(before);this.db.run('PRAGMA foreign_keys=ON');this.poisoned=true;}throw e;}}
+ persist(){if(!this.file)return;const b=this.bytes();fs.mkdirSync(path.dirname(this.file),{recursive:true});const tmp=this.file+'.tmp';const fd=fs.openSync(tmp,'w',0o600);try{fs.writeFileSync(fd,b);fs.fsyncSync(fd);}finally{fs.closeSync(fd);}this.opts.hook?.('after_temp');if(fs.existsSync(this.file)){const prev=this.file+'.prev.tmp';fs.copyFileSync(this.file,prev);const p=fs.openSync(prev,'r');try{fs.fsyncSync(p);}finally{fs.closeSync(p);}fs.renameSync(prev,this.file+'.prev');}fs.renameSync(tmp,this.file);this.opts.hook?.('after_rename');if(process.platform!=='win32'){const dir=fs.openSync(path.dirname(this.file),'r');try{fs.fsyncSync(dir);}finally{fs.closeSync(dir);}}}
+ close(){this.db.close();}
+}
+module.exports={Db};

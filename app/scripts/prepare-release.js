@@ -1,0 +1,2 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path');const secret=process.env.PETRA_LICENSE_SECRET;if(!secret||secret.length<32)throw Error('Set PETRA_LICENSE_SECRET to a private 32+ character release secret');const root=path.resolve(__dirname,'..');fs.writeFileSync(path.join(root,'src/build-config.js'),"'use strict';\nmodule.exports="+JSON.stringify({release:true,licenseSecret:secret})+';\n');fs.cpSync(path.join(root,'../contract'),path.join(root,'contract'),{recursive:true});

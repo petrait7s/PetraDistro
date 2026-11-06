@@ -1,0 +1,122 @@
+{
+  "_envelope": {
+    "ok": "{ok:true, data}",
+    "err": "{ok:false, code, message, details?}",
+    "note": "message is a short English developer message. The UI maps `code` (+ details) to Bangla/English text itself via i18n keys 'err.<CODE>'."
+  },
+  "VALIDATION": "Bad input. details.fields = [{path, rule, message}].",
+  "STOCK": "Not enough stock. details.lines = [{index, product_id, requested, available}].",
+  "DUPLICATE": "Unique value already exists (sku, phone, invoice no).",
+  "FORBIDDEN": "Role may not call this method, or may not see/change this field. Never leaks field values.",
+  "NEEDS_OWNER_PIN": "Action allowed only with an owner approval. details.reason_kind = discount_over_cap|below_min_price|cancel_invoice|reverse_payment|edit_mode|restore_backup|stock_adjust. Retry with approval:{token,reason}.",
+  "DISCOUNT_LIMIT": "Discount exceeds a hard limit (e.g. more than the line total). Not overridable.",
+  "LOCKED": "Session locked, edit mode off, day closed, or record locked.",
+  "NOT_FOUND": "Unknown id.",
+  "DB": "Database or file-system failure. details.recoverable:bool.",
+  "UNAUTHENTICATED": "No session (login or unlock needed).",
+  "LICENSE": "License missing/invalid. details.state = none|invalid|revoked.",
+  "UNSUPPORTED": "Reserved feature not built yet (e.g. printer.print before printer adapters exist).",
+  "CREDIT_LIMIT": "Customer would exceed credit limit and setting credit.mode=block. Overridable with owner approval.",
+  "STATE": "Wrong state for this action (e.g. cancel an already-cancelled sale, reverse a reversed payment).",
+  "IDEMPOTENCY_CONFLICT": "Same request_id used with different operation/payload.",
+  "RATE_LIMIT": "Too many attempts; details.retry_after_sec.",
+  "details_schema": {
+    "type": "object",
+    "properties": {
+      "reason_kind": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 1000
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "fields": {
+        "anyOf": [
+          {
+            "type": "array",
+            "maxItems": 20000,
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "rule": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "message": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              },
+              "required": [
+                "path",
+                "rule",
+                "message"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "lines": {
+        "anyOf": [
+          {
+            "type": "array",
+            "maxItems": 20000,
+            "items": {
+              "$ref": "#/$defs/Json"
+            }
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "recoverable": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "retry_after_sec": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "state": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 1000
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  }
+}

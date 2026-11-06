@@ -1,0 +1,8 @@
+'use strict';
+const assert=require('node:assert/strict'),{Engine}=require('../app/src/services/engine'),{issue}=require('../app/src/core/license');
+async function ok(e,m,a={}){const r=await e.call(m,a);assert.equal(r.ok,true,m+': '+JSON.stringify(r));return r.data;}
+async function approve(e,op,a={}){const r=await ok(e,'auth.requestApproval',{owner_pin:'1234',operation:op,payload:a});return {...a,approval:{token:r.token,reason:'Test approved'}};}
+async function boot(file=null,extra={}){let now=Date.parse('2026-11-06T06:00:00Z');const e=await Engine.open(file,{clock:()=>now,licenseSecret:'fixture-secret',debug:true,...extra});e.setTime=t=>{now=Date.parse(t);};await ok(e,'license.activate',{code:issue('MMTR','fixture-secret')});await ok(e,'setup.complete',{seed_products:false,business:{name:'MM Traders',address:'Dhaka',phone:'01700000000'},owner:{name:'Owner',pin:'1234'},manager:{name:'Manager',pin:'5678'}});await ok(e,'auth.login',{role:'owner',pin:'1234'});await ok(e,'editmode.enable',await approve(e,'editmode.enable'));return e;}
+async function product(e,opts={}){const co=await ok(e,'companies.save',{name:'Supplier '+Math.random().toString(36).slice(2)});return ok(e,'products.save',{sku:'SKU-'+Math.random().toString(36).slice(2),name:'Product',company_id:co.id,sell_mode:'carton_pcs',pcs_per_carton:24,grams_per_carton:12000,list_price:1058400,cost_price:994896,max_discount:{per_unit:12000},...opts});}
+async function stocked(e,opts={}){const p=await product(e,opts);await ok(e,'stock.adjust',{product_id:p.id,delta:p.sell_mode==='by_kg'?{kg:'2000'}:{cartons:100},sign:'plus',reason:'Opening stock'});return p;}
+module.exports={ok,approve,boot,product,stocked};

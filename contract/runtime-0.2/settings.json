@@ -1,0 +1,279 @@
+{
+  "defaults": {
+    "business.name": "MM Traders",
+    "business.address": "",
+    "business.phone": "",
+    "invoice.footer": "Thank you",
+    "invoice.default_size": "80",
+    "credit.mode": "warn",
+    "cancel.manager_needs_approval": true,
+    "returns.manager_needs_approval": true,
+    "expiry.warn_days": 30,
+    "lock.idle_minutes": 10,
+    "editmode.idle_minutes": 10,
+    "games.enabled": true,
+    "games.manager_enabled": true,
+    "calc.enabled": true,
+    "commission.enabled": true,
+    "numerals.default": "latin",
+    "backdate.max_days": 30,
+    "invoice.discount_owner_only": true,
+    "cash.drawer_count": 1,
+    "van.count": 1,
+    "vat.enabled": false
+  },
+  "public": [
+    "business.name",
+    "business.address",
+    "business.phone",
+    "invoice.footer",
+    "invoice.default_size",
+    "games.enabled",
+    "games.manager_enabled",
+    "calc.enabled",
+    "numerals.default"
+  ],
+  "schema": {
+    "type": "object",
+    "properties": {
+      "business.name": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 1000
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "business.address": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 1000
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "business.phone": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 1000
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "invoice.footer": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 1000
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "invoice.default_size": {
+        "anyOf": [
+          {
+            "enum": [
+              "58",
+              "80",
+              "a4"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "credit.mode": {
+        "anyOf": [
+          {
+            "enum": [
+              "warn",
+              "block"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "cancel.manager_needs_approval": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "returns.manager_needs_approval": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "expiry.warn_days": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "lock.idle_minutes": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "editmode.idle_minutes": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "games.enabled": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "games.manager_enabled": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "calc.enabled": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "commission.enabled": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "numerals.default": {
+        "anyOf": [
+          {
+            "enum": [
+              "latin",
+              "bengali"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "backdate.max_days": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "invoice.discount_owner_only": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "cash.drawer_count": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "van.count": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "vat.enabled": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  }
+}

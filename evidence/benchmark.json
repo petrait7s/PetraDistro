@@ -1,0 +1,22 @@
+{
+  "products": 5000,
+  "invoice_lines": 50000,
+  "platform": "linux",
+  "node": "v24.22.1",
+  "database_bytes": 10674176,
+  "timings": {
+    "products_page": {
+      "ms": 34479,
+      "ok": true
+    },
+    "dashboard": {
+      "ms": 922,
+      "ok": true
+    },
+    "sale_durable": {
+      "ms": 176,
+      "ok": true
+    }
+  },
+  "sqljs_150ms_gate": false
+}

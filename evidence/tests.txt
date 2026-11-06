@@ -1,0 +1,20 @@
+✔ contract: all executable schemas compile, reject unknown keys and registry matches (1633.188229ms)
+✔ fixtures: exact preview, manager row, received payment, commission (1124.313765ms)
+✔ money: 8 vectors and 10000 deterministic exact rational/discount properties (18.778361ms)
+✔ permissions: every owner method rejects manager; scoped records and idempotency (893.164038ms)
+✔ approval: bound payload, consumption, expiry, lock invalidation (1330.65141ms)
+✔ redaction: every reachable manager read and nested sale/payment response (1456.128812ms)
+✔ FEFO: expired exclusion and 100 sale/cancel cycles conserve original lot qty and value (10791.599033ms)
+✔ returns: fractional partial returns sum exactly to invoice net and restore costs (828.151442ms)
+✔ cash: noncash expense, supplier cash, reverse on next day, preserved close revision (1080.747231ms)
+✔ database guards reject floats and financial edits; audit catches tampering (811.330569ms)
+✔ crash: actual child-process kill at four persistence boundaries (9175.095983ms)
+✔ sale, receipt, return, cancellation, refund reconcile (1724.361394ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20145.40743

@@ -1,0 +1,27 @@
+{
+  "setup": "fixtureState + manager login",
+  "method": "sales.create",
+  "request": {
+    "customer_id": 7,
+    "lines": [
+      {
+        "product_id": 47,
+        "qty": {
+          "kg": "25"
+        },
+        "discount": {
+          "type": "per_unit",
+          "value": 500
+        }
+      }
+    ]
+  },
+  "response": {
+    "ok": false,
+    "code": "NEEDS_OWNER_PIN",
+    "message": "Owner approval required",
+    "details": {
+      "reason_kind": "sales.create"
+    }
+  }
+}

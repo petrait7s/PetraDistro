@@ -1,0 +1,2 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process');let failures=0;function walk(p){for(const x of fs.readdirSync(p,{withFileTypes:true})){if(x.name==='node_modules'||x.name==='contract')continue;const f=path.join(p,x.name);if(x.isDirectory())walk(f);else if(f.endsWith('.js')){const r=spawnSync(process.execPath,['--check',f],{encoding:'utf8'});if(r.status){console.error(r.stderr);failures++;}}}}walk(path.resolve(__dirname,'..'));console.log('Syntax failures:',failures);process.exitCode=failures?1:0;

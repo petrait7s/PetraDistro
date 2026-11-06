@@ -1,0 +1,27 @@
+const L = require('../widgets/games/logic.js');
+let seed = 7; const rng = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+module.exports = async (t) => {
+  const g = L.g2048;
+  t.eq(g.slide([2, 2, 2, 2]), { line: [4, 4, 0, 0], gained: 8 }); t.eq(g.slide([2, 2, 4, 0]).line, [4, 4, 0, 0]); t.eq(g.slide([4, 0, 4, 8]).line, [8, 8, 0, 0]); t.eq(g.slide([2, 4, 2, 4]).gained, 0);
+  let b = [[2, 0, 0, 2], [0, 0, 0, 0], [4, 4, 0, 0], [0, 0, 0, 0]]; let r = g.move(b, 'left'); t.eq(r.board[0], [4, 0, 0, 0]); t.eq(r.board[2], [8, 0, 0, 0]); t.eq(r.gained, 12);
+  r = g.move(b, 'right'); t.eq(r.board[0], [0, 0, 0, 4]); r = g.move(b, 'up'); t.eq([r.board[0][0], r.board[1][0]], [2, 4]);
+  t.eq(g.move([[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [4, 2, 4, 2]], 'left').moved, false); t.eq(g.canMove([[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [4, 2, 4, 2]]), false);
+  let s = g.newGame(rng); t.eq(s.board.flat().filter(Boolean).length, 2); for (let i = 0; i < 400 && !s.over; i++) s = g.step(s, ['left', 'up', 'right', 'down'][i % 4], rng); t.ok(s.over, 'random play ends'); t.ok(s.score > 0);
+  const same = g.step(s, 'left', rng); t.ok(same === s, 'no move after over');
+  const sn = L.snake; let q = sn.newGame({ w: 10, h: 10 }, rng); t.eq(q.body.length, 3); sn.turn(q, 'left'); t.eq(q.queued, null, 'cannot reverse'); sn.turn(q, 'up'); sn.step(q, rng); t.eq(q.dir, 'up');
+  q = sn.newGame({ w: 10, h: 10 }, rng); for (let i = 0; i < 12; i++) sn.step(q, rng); t.eq(q.alive, false, 'hits wall');
+  q = sn.newGame({ w: 10, h: 10, wrap: true }, rng); q.food = { x: 0, y: 0 }; for (let i = 0; i < 12; i++) sn.step(q, rng); t.ok(q.alive, 'wrap survives');
+  q = sn.newGame({ w: 10, h: 10 }, rng); q.food = { x: q.body[0].x + 1, y: q.body[0].y }; sn.step(q, rng); t.eq([q.score, q.body.length], [1, 4], 'eat grows');
+  q = sn.newGame({ w: 10, h: 10 }, rng); q.body = [{ x: 4, y: 4 }, { x: 4, y: 5 }, { x: 5, y: 5 }, { x: 5, y: 4 }, { x: 5, y: 3 }]; q.dir = 'up'; q.food = { x: 0, y: 0 }; sn.turn(q, 'right'); sn.step(q, rng); t.eq(q.alive, false, 'self collision');
+  const m = L.memory; let mm = m.newGame(8, rng); t.eq(mm.cards.length, 16); t.eq(mm.cards.filter((c) => c.id === 3).length, 2);
+  const ids = mm.cards.map((c) => c.id); const a = ids.indexOf(0), bb = ids.lastIndexOf(0), x = ids.indexOf(1);
+  m.flip(mm, a); m.flip(mm, x); t.ok(mm.busy, 'mismatch busy'); m.flip(mm, bb); t.eq(mm.open.length, 2, 'cannot flip a third while busy'); m.resolve(mm); t.eq(mm.cards.filter((c) => c.up).length, 0); t.eq(mm.moves, 1);
+  m.flip(mm, a); m.flip(mm, bb); t.eq([mm.matched, mm.busy], [1, false]); mm = m.newGame(2, rng); const ii = mm.cards.map((c) => c.id); [0, 1].forEach((id) => { m.flip(mm, ii.indexOf(id)); m.flip(mm, ii.lastIndexOf(id)); }); t.ok(mm.won); t.ok(m.points(mm) >= 10);
+  const bl = L.blocks; let bs = bl.newGame(rng); t.ok(bl.NAMES.includes(bs.cur.t)); t.eq(bl.cells({ t: 'I', r: 0, x: 0, y: 0 }), [[0, 1], [1, 1], [2, 1], [3, 1]]);
+  t.eq(bl.cells({ t: 'I', r: 1, x: 0, y: 0 }).map((c) => c[0]).every((v) => v === 2), true, 'I rotates vertical');
+  t.eq(new Set(bl.cells({ t: 'O', r: 1, x: 0, y: 0 }).map(String)).size, 4); bs.cur = { t: 'I', r: 0, x: 0, y: 17 }; t.ok(bl.tryMove(bs, 0, 1) === true); t.ok(bl.tryMove(bs, 0, 1) === false, 'floor');
+  t.eq(bl.tryMove(Object.assign(bl.newGame(rng), {}), -10, 0), false, 'wall');
+  bs = bl.newGame(rng); for (let x = 0; x < 10; x++) if (x < 4 || x > 5) { bs.board[19][x] = 'O'; bs.board[18][x] = 'O'; } bs.cur = { t: 'O', r: 0, x: 3, y: 18 }; const lines = bl.lock(bs); t.eq(lines, 2, 'clears 2 lines'); t.eq(bs.score, 300); t.eq(bs.lines, 2);
+  bs = bl.newGame(rng); for (let i = 0; i < 4000 && !bs.over; i++) bl.hardDrop(bs); t.ok(bs.over, 'stack out ends game'); t.ok(bl.interval(1) > bl.interval(9));
+  t.ok(L.snake.interval(0) > L.snake.interval(30), 'snake speeds up');
+};

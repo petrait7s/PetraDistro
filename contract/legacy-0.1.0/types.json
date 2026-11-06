@@ -1,0 +1,239 @@
+{
+ "_notation": "Leaf types: int, string, bool, money (int paisa), date (YYYY-MM-DD, business date), ts (ISO-8601 UTC), id (int). enum(a|b). 'T?' optional/nullable. '[T]' array. Names starting with a capital letter refer to this table. Anything else is an object literal.",
+ "Page": {
+  "limit": "int?",
+  "cursor": "string?"
+ },
+ "PageOut": {
+  "next_cursor": "string?",
+  "total": "int"
+ },
+ "Qty": {
+  "base": "int  (pcs for carton_pcs products, grams for by_kg)",
+  "unit": "enum(pcs|g)",
+  "cartons": "int",
+  "pcs": "int  (remainder pcs; 0 for by_kg)",
+  "kg": "string?  (decimal, 3 places; total weight, by_kg or when grams_per_carton known)",
+  "text": {
+   "bn": "string",
+   "en": "string"
+  }
+ },
+ "QtyIn": {
+  "cartons": "int?",
+  "pcs": "int?",
+  "kg": "string?  (decimal string up to 3 places, only for by_kg products; backend parses exactly, UI never uses float)"
+ },
+ "DiscountIn": {
+  "type": "enum(none|per_unit|percent|line)",
+  "value": "int  (per_unit: paisa per carton or per kg; percent: basis points, 250 = 2.5%; line: paisa for the whole line)"
+ },
+ "Approval": {
+  "token": "string  (from auth.requestApproval, single use)",
+  "reason": "string"
+ },
+ "User": {
+  "id": "id",
+  "name": "string",
+  "role": "enum(owner|manager)"
+ },
+ "Company": {
+  "id": "id",
+  "name": "string",
+  "phone": "string?",
+  "due": "money?  (owner only)"
+ },
+ "Product": {
+  "id": "id",
+  "sku": "string",
+  "company_id": "id?",
+  "company_name": "string?",
+  "name": "string",
+  "original_name": "string?",
+  "sell_mode": "enum(carton_pcs|by_kg)",
+  "pcs_per_carton": "int?",
+  "pcs_per_dozen": "int?",
+  "grams_per_carton": "int?",
+  "list_price": "money  (per carton for carton_pcs, per kg for by_kg)",
+  "cost_price": "money?  (OWNER ONLY, omitted for manager)",
+  "margin_bp": "int?  (OWNER ONLY)",
+  "max_discount": {
+   "per_unit": "money",
+   "percent_bp": "int?"
+  },
+  "min_sell_price": "money?  (OWNER ONLY)",
+  "min_stock": "Qty?",
+  "stock": "Qty",
+  "stock_value": "money?  (OWNER ONLY, at lot cost)",
+  "status": "enum(ok|low|out|near_expiry)",
+  "next_expiry": "date?",
+  "trend30": "[int]  (daily sold, base units, oldest first)",
+  "assumed": {
+   "pcs_per_carton": "bool",
+   "cost_price": "bool"
+  },
+  "active": "bool"
+ },
+ "Lot": {
+  "id": "id",
+  "product_id": "id",
+  "purchase_id": "id?",
+  "received_date": "date",
+  "expiry_date": "date?",
+  "received": "Qty",
+  "remaining": "Qty",
+  "unit_cost": "money?  (OWNER ONLY)",
+  "days_to_expiry": "int?"
+ },
+ "CustomerRow": {
+  "id": "id",
+  "name": "string",
+  "owner": "string?",
+  "phone": "string?",
+  "area": "string?",
+  "route": "string?",
+  "credit_limit": "money?",
+  "due": "money",
+  "last_payment_date": "date?",
+  "days_since_payment": "int?",
+  "limit_used_bp": "int?"
+ },
+ "LedgerRow": {
+  "date": "date",
+  "ts": "ts",
+  "kind": "enum(opening|sale|payment|return|refund|cancel|reversal)",
+  "ref": "string",
+  "ref_id": "id?",
+  "debit": "money",
+  "credit": "money",
+  "balance": "money"
+ },
+ "SaleLineIn": {
+  "product_id": "id",
+  "qty": "QtyIn",
+  "discount": "DiscountIn?"
+ },
+ "SaleLine": {
+  "line_no": "int",
+  "product_id": "id",
+  "name": "string",
+  "qty": "Qty",
+  "list_price": "money",
+  "gross": "money",
+  "discount": {
+   "type": "string",
+   "input": "int",
+   "amount": "money",
+   "per_unit": "money"
+  },
+  "net": "money",
+  "over_cap": "bool",
+  "allowed_per_unit": "money",
+  "below_min_price": "bool",
+  "lots": "[{lot_id:id, received_date:date, expiry_date:date?, qty:Qty}]  (FEFO preview)",
+  "cost": "money?  (OWNER ONLY)",
+  "profit": "money?  (OWNER ONLY)"
+ },
+ "SaleTotals": {
+  "subtotal": "money",
+  "line_discount": "money",
+  "invoice_discount": "money",
+  "total": "money",
+  "paid": "money",
+  "due": "money",
+  "customer_due_before": "money",
+  "customer_due_after": "money",
+  "credit_state": "enum(ok|warn|blocked)",
+  "over_cap_lines": "[int]",
+  "needs_owner_pin": "bool"
+ },
+ "Sale": {
+  "id": "id",
+  "invoice_no": "string",
+  "date": "date",
+  "ts": "ts",
+  "customer": "{id:id,name:string}",
+  "status": "enum(completed|cancelled)",
+  "lines": "[SaleLine]",
+  "totals": "SaleTotals",
+  "created_by": "string",
+  "salesman": "string?",
+  "override": "{approved_by:string, reason:string}?",
+  "cancel": "{by:string, reason:string, ts:ts}?",
+  "print_count": "int"
+ },
+ "Payment": {
+  "id": "id",
+  "receipt_no": "string",
+  "ts": "ts",
+  "date": "date",
+  "party_type": "enum(customer|company)",
+  "party_id": "id",
+  "party_name": "string",
+  "amount": "money",
+  "method": "enum(cash|bkash|nagad|bank|cheque)",
+  "ref": "string?",
+  "note": "string?",
+  "status": "enum(active|reversed)",
+  "created_by": "string",
+  "allocations": "[{sale_id:id?, invoice_no:string?, opening:bool?, amount:money}]",
+  "cheque": "{no:string, bank:string?, deposit_date:date?, status:enum(pending|cleared|bounced)}?",
+  "reversal": "{by:string, reason:string, ts:ts}?"
+ },
+ "Invoice": {
+  "sale": "Sale",
+  "business": {
+   "name": "string",
+   "address": "string",
+   "phone": "string",
+   "logo": "string?  (data URI)"
+  },
+  "size": "enum(58|80|a4)",
+  "language": "enum(bn|en|both)",
+  "is_copy": "bool",
+  "copy_no": "int",
+  "watermark": "enum(none|copy|cancelled)",
+  "footer": "string?"
+ },
+ "Receipt": {
+  "payment": "Payment",
+  "business": "Invoice.business",
+  "customer_due_after": "money?",
+  "size": "enum(58|80|a4)",
+  "is_copy": "bool"
+ },
+ "AuditRow": {
+  "id": "id",
+  "ts": "ts",
+  "user": "string",
+  "role": "string",
+  "action": "string",
+  "entity": "string",
+  "entity_id": "string?",
+  "old": "string?",
+  "new": "string?",
+  "reason": "string?",
+  "flag": "bool",
+  "flag_kind": "string?",
+  "prev_hash": "string",
+  "hash": "string"
+ },
+ "Prefs": {
+  "language": "enum(bn|en)",
+  "theme": "enum(light|dark|system)",
+  "numerals": "enum(latin|bengali)",
+  "invoice_size": "enum(58|80|a4)",
+  "invoice_language": "enum(bn|en|both)",
+  "calc": {
+   "x": "int",
+   "y": "int",
+   "open": "bool",
+   "history": "[string]",
+   "memory": "string?"
+  },
+  "games": {
+   "enabled": "bool",
+   "scores": "{2048:int, snake:int, memory:int, blocks:int}"
+  }
+ }
+}

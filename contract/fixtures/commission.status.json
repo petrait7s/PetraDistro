@@ -1,0 +1,48 @@
+{
+  "setup": "fixtureState + 984 kg sale + marginal rule",
+  "method": "commission.status",
+  "request": {
+    "rule_id": 1
+  },
+  "response": {
+    "ok": true,
+    "data": {
+      "net_kg": "984.000",
+      "estimate": 607200,
+      "bands": [
+        {
+          "from_kg": 0,
+          "to_kg": 300,
+          "rate_per_kg": 400,
+          "kg_in_band": "300.000",
+          "grams_in_band": 300000,
+          "amount": 120000
+        },
+        {
+          "from_kg": 300,
+          "to_kg": 600,
+          "rate_per_kg": 600,
+          "kg_in_band": "300.000",
+          "grams_in_band": 300000,
+          "amount": 180000
+        },
+        {
+          "from_kg": 600,
+          "to_kg": null,
+          "rate_per_kg": 800,
+          "kg_in_band": "384.000",
+          "grams_in_band": 384000,
+          "amount": 307200
+        }
+      ],
+      "to_next_kg": null,
+      "by_product": [
+        {
+          "product_id": 47,
+          "name": "S BOP Tea 500 g",
+          "kg": "984.000"
+        }
+      ]
+    }
+  }
+}

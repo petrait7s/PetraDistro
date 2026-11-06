@@ -1,0 +1,288 @@
+{
+  "setup": "fixture-state.js:fixtureState",
+  "method": "sales.preview",
+  "request": {
+    "customer_id": 7,
+    "lines": [
+      {
+        "product_id": 5,
+        "qty": {
+          "cartons": 2,
+          "pcs": 12
+        },
+        "discount": {
+          "type": "per_unit",
+          "value": 8000
+        }
+      },
+      {
+        "product_id": 16,
+        "qty": {
+          "cartons": 3
+        },
+        "discount": {
+          "type": "percent",
+          "value": 100
+        }
+      },
+      {
+        "product_id": 47,
+        "qty": {
+          "kg": "25"
+        },
+        "discount": {
+          "type": "per_unit",
+          "value": 500
+        }
+      },
+      {
+        "product_id": 1,
+        "qty": {
+          "cartons": 1
+        }
+      }
+    ]
+  },
+  "response": {
+    "ok": true,
+    "data": {
+      "lines": [
+        {
+          "line_no": 1,
+          "product_id": 5,
+          "sku": "MARK-MP-500G",
+          "name": "Mark Milk Powder 500 g",
+          "qty": {
+            "base": 60,
+            "unit": "pcs",
+            "cartons": 2,
+            "pcs": 12,
+            "kg": "30.000",
+            "text": {
+              "en": "2 cartons 12 pcs",
+              "bn": "2 কার্টন 12 পিস"
+            }
+          },
+          "qty_base": 60,
+          "unit_base": 24,
+          "list_price": 1058400,
+          "gross": 2646000,
+          "discount": {
+            "type": "per_unit",
+            "input": 8000,
+            "amount": 20000,
+            "per_unit": 8000
+          },
+          "net": 2626000,
+          "invoice_discount_share": 0,
+          "refundable_net": 2626000,
+          "returned_base": 0,
+          "over_cap": false,
+          "allowed_per_unit": 12000,
+          "below_min_price": false,
+          "needs_approval": false,
+          "lots": [
+            {
+              "lot_id": 1,
+              "received_date": "2026-11-01",
+              "expiry_date": null,
+              "qty": {
+                "base": 60,
+                "unit": "pcs",
+                "cartons": 2,
+                "pcs": 12,
+                "kg": "30.000",
+                "text": {
+                  "en": "2 cartons 12 pcs",
+                  "bn": "2 কার্টন 12 পিস"
+                }
+              }
+            }
+          ],
+          "cost": 2487240,
+          "profit": 138760
+        },
+        {
+          "line_no": 2,
+          "product_id": 16,
+          "sku": "AMA-MP-1KG",
+          "name": "Ama Milk Powder 1 kg",
+          "qty": {
+            "base": 36,
+            "unit": "pcs",
+            "cartons": 3,
+            "pcs": 0,
+            "kg": "36.000",
+            "text": {
+              "en": "3 cartons",
+              "bn": "3 কার্টন"
+            }
+          },
+          "qty_base": 36,
+          "unit_base": 12,
+          "list_price": 949200,
+          "gross": 2847600,
+          "discount": {
+            "type": "percent",
+            "input": 100,
+            "amount": 28476,
+            "per_unit": 9492
+          },
+          "net": 2819124,
+          "invoice_discount_share": 0,
+          "refundable_net": 2819124,
+          "returned_base": 0,
+          "over_cap": false,
+          "allowed_per_unit": 12000,
+          "below_min_price": false,
+          "needs_approval": false,
+          "lots": [
+            {
+              "lot_id": 2,
+              "received_date": "2026-11-01",
+              "expiry_date": null,
+              "qty": {
+                "base": 36,
+                "unit": "pcs",
+                "cartons": 3,
+                "pcs": 0,
+                "kg": "36.000",
+                "text": {
+                  "en": "3 cartons",
+                  "bn": "3 কার্টন"
+                }
+              }
+            }
+          ],
+          "cost": 2676744,
+          "profit": 142380
+        },
+        {
+          "line_no": 3,
+          "product_id": 47,
+          "sku": "S-BOP-500G",
+          "name": "S BOP Tea 500 g",
+          "qty": {
+            "base": 25000,
+            "unit": "g",
+            "cartons": 0,
+            "pcs": 0,
+            "kg": "25.000",
+            "text": {
+              "en": "25.000 kg",
+              "bn": "25.000 কেজি"
+            }
+          },
+          "qty_base": 25000,
+          "unit_base": 1000,
+          "list_price": 25800,
+          "gross": 645000,
+          "discount": {
+            "type": "per_unit",
+            "input": 500,
+            "amount": 12500,
+            "per_unit": 500
+          },
+          "net": 632500,
+          "invoice_discount_share": 0,
+          "refundable_net": 632500,
+          "returned_base": 0,
+          "over_cap": true,
+          "allowed_per_unit": 300,
+          "below_min_price": false,
+          "needs_approval": true,
+          "lots": [
+            {
+              "lot_id": 3,
+              "received_date": "2026-11-01",
+              "expiry_date": null,
+              "qty": {
+                "base": 25000,
+                "unit": "g",
+                "cartons": 0,
+                "pcs": 0,
+                "kg": "25.000",
+                "text": {
+                  "en": "25.000 kg",
+                  "bn": "25.000 কেজি"
+                }
+              }
+            }
+          ],
+          "cost": 606300,
+          "profit": 26200
+        },
+        {
+          "line_no": 4,
+          "product_id": 1,
+          "sku": "MARK-MP-2KG",
+          "name": "Mark Milk Powder 2 kg",
+          "qty": {
+            "base": 6,
+            "unit": "pcs",
+            "cartons": 1,
+            "pcs": 0,
+            "kg": "12.000",
+            "text": {
+              "en": "1 cartons",
+              "bn": "1 কার্টন"
+            }
+          },
+          "qty_base": 6,
+          "unit_base": 6,
+          "list_price": 1044000,
+          "gross": 1044000,
+          "discount": {
+            "type": "none",
+            "input": 0,
+            "amount": 0,
+            "per_unit": 0
+          },
+          "net": 1044000,
+          "invoice_discount_share": 0,
+          "refundable_net": 1044000,
+          "returned_base": 0,
+          "over_cap": false,
+          "allowed_per_unit": 12000,
+          "below_min_price": false,
+          "needs_approval": false,
+          "lots": [
+            {
+              "lot_id": 4,
+              "received_date": "2026-11-01",
+              "expiry_date": null,
+              "qty": {
+                "base": 6,
+                "unit": "pcs",
+                "cartons": 1,
+                "pcs": 0,
+                "kg": "12.000",
+                "text": {
+                  "en": "1 cartons",
+                  "bn": "1 কার্টন"
+                }
+              }
+            }
+          ],
+          "cost": 981360,
+          "profit": 62640
+        }
+      ],
+      "totals": {
+        "subtotal": 7182600,
+        "line_discount": 60976,
+        "invoice_discount": 0,
+        "total": 7121624,
+        "paid": 0,
+        "due": 7121624,
+        "customer_due_before": 0,
+        "customer_due_after": 7121624,
+        "credit_state": "ok",
+        "over_cap_lines": [
+          3
+        ],
+        "needs_owner_pin": true
+      }
+    }
+  }
+}
