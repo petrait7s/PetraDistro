@@ -26,9 +26,13 @@ Local build: (run on Windows, or in the supplied GitHub workflow)
     npm run dist
 Output: `dist/PetraDMS-Setup-1.5.0.exe` and a portable exe. Keep the secret private: it signs license codes. `npm run dist` writes the secret into `app/src/build-config.js`; do not commit that file after a local build (`git checkout app/src/build-config.js`).
 
-## License codes
-    node tools/issue-license.js MMTR <same secret>
-Enter the printed code on first run, then complete setup (business, owner PIN, manager PIN).
+## License code
+Release builds use one fixed owner code that only you know (letters and digits, at least 8; dashes, spaces and case are ignored).
+Add it as the GitHub secret `PETRA_LICENSE_CODE`, e.g. `PETRA-XXXX-XXXXX-XXX`. The build stores only a scrypt hash of it, never the code. Enter the same code on first run, and use it again on "Forgot PIN".
+
+Local run with the fixed code: `PETRA_LICENSE_CODE='your code' electron .`
+
+Without `PETRA_LICENSE_CODE` the old signed codes are used: `PETRA_LICENSE_SECRET=<secret> node tools/issue-license.js MMTR`.
 
 ## Data
 SQLite file in `%APPDATA%\PetraDMS\data\data.db`; backups in `Documents\PetraDMS\Backups`; saved invoices and exports in `Documents\PetraDMS\Files`. First setup preinstalls the 75 MM Traders products (`app/seed/mm-traders-products.csv`) with their companies, wholesale price per carton (per kg for loose tea) and, where the name and carton weight allow it, pcs per carton. Buy rates are empty until the first purchase. An existing database is never touched: seeding runs only when the product table is empty.

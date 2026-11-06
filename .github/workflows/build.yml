@@ -24,6 +24,7 @@ jobs:
       - run: npm run dist
         env:
           PETRA_LICENSE_SECRET: ${{ secrets.PETRA_LICENSE_SECRET }}
+          PETRA_LICENSE_CODE: ${{ secrets.PETRA_LICENSE_CODE }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - uses: actions/upload-artifact@v4
         with:

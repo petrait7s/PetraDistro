@@ -41,3 +41,14 @@ test('retail price type and van invoices',async()=>{
   assert.equal(ls.lines[0].sold.cartons,1);assert.equal(ls.lines[0].expected.cartons,4);
   assert.equal((await ok(e,'loadsheet.list',{})).rows[0].sales_count,1);
 });
+
+test('fixed owner license code: only the hash is needed, dashes and case ignored',async()=>{
+  const {codeHash}=require('../app/src/core/license');
+  const e=await Engine.open(null,{licenseSecret:null,licenseCodeHash:codeHash('PETRA-SOFT-SHU7S-TAN'),debug:true});
+  assert.equal((await e.call('license.activate',{code:'PETRA-SOFT-SHU7S-TAX'})).code,'LICENSE');
+  assert.equal((await e.call('license.activate',{code:issue('MMTR','x')})).code,'LICENSE');
+  await ok(e,'license.activate',{code:'petra soft shu7s tan'});
+  await ok(e,'setup.complete',{seed_products:false,business:{name:'MM',address:'S',phone:'01'},owner:{name:'O',pin:'1234'},manager:{name:'M',pin:'5678'}});
+  await ok(e,'auth.resetPin',{license_code:'PETRA-SOFT-SHU7S-TAN',new_pin:'9999'});
+  await ok(e,'auth.login',{role:'owner',pin:'9999'});
+});

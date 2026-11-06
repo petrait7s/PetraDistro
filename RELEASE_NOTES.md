@@ -1,6 +1,7 @@
 # Release notes
 
 ## 1.5.0
+- License: fixed owner code (`PETRA_LICENSE_CODE` build secret, hash only in the app). Dashes/case ignored; also accepted for PIN reset.
 - Purchases: rebuilt "Receive goods" screen, now the first tab. "Select many products" checklist, "New product" and "+ company" buttons, per line pcs per carton, buy rate, wholesale and retail rate, expiry, amount. One save, no edit-mode PIN.
 - Backend: `purchases.create` / `purchases.preview` lines accept `pcs_per_carton`, `sell_price`, `retail_price`; the purchase updates the product (carton size only while it has no stock history; refused otherwise). A product without pcs per carton gives a clear "Pcs per carton missing" error.
 - The 75 MM Traders products are preinstalled at first setup (`setup.complete` option `seed_products`, default on).
