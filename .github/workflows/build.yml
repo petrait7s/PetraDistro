@@ -1,5 +1,8 @@
 name: Windows backend package
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
 permissions:
   contents: read
 jobs:
