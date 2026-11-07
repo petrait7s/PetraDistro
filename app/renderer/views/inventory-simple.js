@@ -16,7 +16,7 @@
   const orig = PD.views.inventory;
   PD.views.inventory = {
     async render(el) {
-      if (PD.S.role !== 'owner' || (PD.S.invMode || 'simple') === 'grid') { return orig.render(el); }
+      if (!PD.power() || (PD.S.invMode || 'simple') === 'grid') { return orig.render(el); }
       el.classList.remove('flush'); return simple(el);
     }
   };

@@ -99,6 +99,20 @@
     $('#pm-all', m.el).addEventListener('change', (e) => { $$('[data-pm]:not(:disabled)', L).forEach((c) => { c.checked = e.target.checked; const p = rows.find((x) => x.id === +c.dataset.pm); if (c.checked) sel.set(p.id, p); else sel.delete(p.id); }); cnt(); });
     $('#pm-q', m.el).addEventListener('input', U.debounce((e) => { q = e.target.value.trim(); load(); })); $('#pm-q', m.el).focus(); load(); return m;
   };
+  /* pick an image file and return a small PNG/JPEG data URL (max 360 px side, about 380 KB) or null */
+  U.pickLogo = () => new Promise((res) => {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp,image/svg+xml';
+    inp.addEventListener('change', () => {
+      const f = inp.files && inp.files[0]; if (!f) { res(null); return; }
+      const rd = new FileReader(); rd.onerror = () => res(null);
+      rd.onload = () => { const img = new Image(); img.onerror = () => { PD.toast(PD.t('brand.bad'), 'bad'); res(null); };
+        img.onload = () => { const k = Math.min(1, 360 / Math.max(img.naturalWidth || 360, img.naturalHeight || 360)); const c = document.createElement('canvas'); c.width = Math.max(1, Math.round((img.naturalWidth || 360) * k)); c.height = Math.max(1, Math.round((img.naturalHeight || 360) * k));
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); let url = c.toDataURL('image/png'); if (url.length > 380000) url = c.toDataURL('image/jpeg', 0.85); res(url.length > 390000 ? (PD.toast(PD.t('brand.big'), 'bad'), null) : url); };
+        img.src = rd.result; };
+      rd.readAsDataURL(f);
+    });
+    inp.click();
+  });
   U.custPicker = (host, o) => U.picker(host, Object.assign({ placeholder: PD.t('cust.search'), fetch: async (q) => { const [d] = await PD.try('customers.list', { q, limit: 12 }); return d ? d.rows.map((c) => ({ id: c.id, label: c.name, sub: (c.area || '') + (c.due > 0 ? ' · ' + PD.t('cust.due') + ' ' + PD.money(c.due) : ''), raw: c })) : []; } }, o));
   U.prodPicker = (host, o) => U.picker(host, Object.assign({ placeholder: PD.t('prod.search'), fetch: async (q) => { const [d] = await PD.try('products.list', { q, limit: 12 }); return d ? d.rows.map((p) => ({ id: p.id, label: p.name, sub: p.sku + ' · ' + U.qty(p.stock), raw: p })) : []; } }, o));
 

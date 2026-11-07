@@ -1971,6 +1971,9 @@
         },
         "calc.enabled": {
           "type": "boolean"
+        },
+        "manager.full_access": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -1979,7 +1982,8 @@
         "business.phone",
         "games.manager_enabled",
         "games.enabled",
-        "calc.enabled"
+        "calc.enabled",
+        "manager.full_access"
       ],
       "additionalProperties": false
     },
@@ -2436,6 +2440,37 @@
           ]
         },
         "vat.enabled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "business.logo": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 400000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "manager.full_access": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "editmode.required": {
           "anyOf": [
             {
               "type": "boolean"

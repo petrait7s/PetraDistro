@@ -22,7 +22,7 @@
 
   /* ---- shared receive form. host: element, cust: customer row (or null -> picker), onDone(result) ---- */
   PD.paymentForm = function paymentForm(host, cust, onDone) {
-    const owner = PD.S.role === 'owner'; const st = { cust, method: 'cash', mode: 'auto_oldest', manual: {}, open: [], amount: null };
+    const owner = PD.power(); const st = { cust, method: 'cash', mode: 'auto_oldest', manual: {}, open: [], amount: null };
     host.innerHTML = `<div class="fgrid">${cust ? '' : U.field('pf-c', PD.t('pay.cust'), '<div id="pf-c"></div>', 'full')}<div class="full" id="pf-info"></div>${U.field('pf-amt', PD.t('pay.amount'), U.moneyIn('pf-amt', null))}${U.field('pf-m', PD.t('pay.method'), `<select class="in" id="pf-m">${U.opts(PD.PAY_METHODS.map((m) => [m, PD.t('pay.m.' + m)]), 'cash')}</select>`)}<div class="full" id="pf-x"></div>${owner ? U.field('pf-d', PD.t('pay.date'), `<input type="date" class="in" id="pf-d" value="${U.today()}" max="${U.today()}">`) : ''}${U.field('pf-n', PD.t('pay.note'), '<input class="in" id="pf-n">')}<div class="full">${U.field('pf-al', PD.t('pay.alloc'), `<select class="in" id="pf-al">${U.opts([['auto_oldest', PD.t('pay.a.auto')], ['manual', PD.t('pay.a.manual')]].concat(owner ? [['on_account', PD.t('pay.a.onacc')]] : []), 'auto_oldest')}</select>`)}</div><div class="full" id="pf-man"></div><div class="full" id="pf-prev"></div></div><div class="row" style="margin-top:12px"><span class="sp"></span><button class="btn p" id="pf-save">${ic('check')} ${esc(PD.t('pay.save'))}</button></div>`;
     const amt = () => U.moneyRead(host, 'pf-amt');
     async function loadCust(c) {
@@ -64,7 +64,7 @@
 
   PD.views.payments = {
     render(el) {
-      const owner = PD.S.role === 'owner'; const tabs = ['receive', 'history', 'daybook'].concat(owner ? ['cheques', 'company'] : []); let tab = PD.S.payTab && tabs.includes(PD.S.payTab) ? PD.S.payTab : 'receive';
+      const owner = PD.power(); const tabs = ['receive', 'history', 'daybook'].concat(owner ? ['cheques', 'company'] : []); let tab = PD.S.payTab && tabs.includes(PD.S.payTab) ? PD.S.payTab : 'receive';
       el.innerHTML = `<div class="tabs">${tabs.map((k) => `<button class="tab ${tab === k ? 'on' : ''}" data-tab="${k}">${esc(PD.t('pay.tab.' + k))}</button>`).join('')}</div><div id="p-body"></div>`;
       $$('[data-tab]', el).forEach((b) => b.addEventListener('click', () => { PD.S.payTab = b.dataset.tab; PD.refreshApp(); }));
       const h = $('#p-body'); ({ receive: receiveTab, history: historyTab, daybook: dayBook, cheques: chequesTab, company: companyTab })[tab](h);
@@ -73,7 +73,7 @@
   function receiveTab(h) { h.innerHTML = '<div class="card" style="max-width:760px"><div id="rt"></div></div>'; const draw = () => PD.paymentForm($('#rt', h), null, () => draw()); draw(); }
 
   function historyTab(h) {
-    const owner = PD.S.role === 'owner'; const t = U.today(); const f = { from: t, to: t, q: '', type: '', method: '', status: '' };
+    const owner = PD.power(); const t = U.today(); const f = { from: t, to: t, q: '', type: '', method: '', status: '' };
     h.innerHTML = `<div class="row wrap" style="margin-bottom:12px;gap:10px"><span id="h-range"></span><input class="in" id="h-q" style="width:220px" placeholder="${esc(PD.t('pay.f.q'))}"><select class="in" id="h-m">${U.opts([['', PD.t('ui.all')]].concat(PD.PAY_METHODS.map((m) => [m, PD.t('pay.m.' + m)])), '')}</select>${owner ? `<select class="in" id="h-t">${U.opts([['', PD.t('pay.t.all')], ['customer', PD.t('pay.t.customer')], ['company', PD.t('pay.t.company')]], '')}</select>` : ''}</div><div id="h-sum" class="row wrap" style="gap:8px;margin-bottom:10px"></div><div id="h-body"></div>`;
     let pg; const go = () => { pg = U.pager($('#h-body'), (cur) => PD.try('payments.list', { from: f.from, to: f.to, q: f.q || undefined, method: f.method || undefined, party_type: f.type || undefined, limit: 50, cursor: cur || undefined }), (rows, d) => draw(rows, d)); };
     U.range($('#h-range'), { from: f.from, to: f.to, onChange: (r) => { f.from = r.from; f.to = r.to; go(); } });

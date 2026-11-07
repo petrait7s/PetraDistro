@@ -14,7 +14,7 @@
     'ledger.sale': ['Sale', 'বিক্রি'], 'ledger.payment': ['Payment', 'আদায়'], 'ledger.return': ['Return', 'ফেরত'], 'ledger.opening': ['Opening', 'শুরু'], 'ledger.reversal': ['Reversal', 'বাতিল'], 'ledger.cancel': ['Cancelled', 'বাতিল ইনভয়েস']
   });
   PD.customerForm = function customerForm(c, onSaved) {
-    const owner = PD.S.role === 'owner'; const v = c || {};
+    const owner = PD.power(); const v = c || {};
     const m = PD.modal({ title: esc(PD.t(c ? 'cust.edit' : 'cust.add')), titleText: PD.t('cust.add'), size: 'wide',
       body: `<div class="fgrid">${U.field('cf-n', PD.t('cust.name'), `<input class="in" id="cf-n" value="${esc(v.name)}">`)}${U.field('cf-o', PD.t('cust.owner'), `<input class="in" id="cf-o" value="${esc(v.owner)}">`)}${U.field('cf-p', PD.t('cust.phone'), `<input class="in" id="cf-p" inputmode="tel" value="${esc(v.phone)}">`)}${U.field('cf-a', PD.t('cust.area'), `<input class="in" id="cf-a" value="${esc(v.area)}">`)}${U.field('cf-r', PD.t('cust.route'), `<input class="in" id="cf-r" value="${esc(v.route)}">`)}${U.field('cf-ad', PD.t('cust.address'), `<input class="in" id="cf-ad" value="${esc(v.address)}">`)}${owner ? U.field('cf-l', PD.t('cust.creditLimit'), U.moneyIn('cf-l', v.credit_limit)) : ''}${owner && !c ? U.field('cf-od', PD.t('cust.opening'), U.moneyIn('cf-od', null)) : ''}</div>`,
       buttons: [{ label: PD.t('common.cancel') }, { label: PD.t('common.save'), cls: 'p', main: true, onClick: async () => {
@@ -26,14 +26,14 @@
 
   PD.views.customers = {
     render(el) {
-      const owner = PD.S.role === 'owner'; let tab = PD.S.custTab || 'all';
+      const owner = PD.power(); let tab = PD.S.custTab || 'all';
       el.innerHTML = `<div class="tabs"><button class="tab ${tab === 'all' ? 'on' : ''}" data-tab="all">${esc(PD.t('cust.tab.all'))}</button>${owner ? `<button class="tab ${tab === 'due' ? 'on' : ''}" data-tab="due">${esc(PD.t('cust.tab.due'))}</button>` : ''}</div><div id="c-body"></div>`;
       $$('[data-tab]', el).forEach((b) => b.addEventListener('click', () => { PD.S.custTab = b.dataset.tab; PD.refreshApp(); }));
       if (tab === 'due' && owner) dueList($('#c-body')); else listTab($('#c-body'));
     }
   };
   function listTab(host) {
-    const owner = PD.S.role === 'owner'; const f = { q: '', has_due: false, sort: 'name' };
+    const owner = PD.power(); const f = { q: '', has_due: false, sort: 'name' };
     host.innerHTML = `<div class="row wrap" style="margin-bottom:12px;gap:10px"><input class="in" id="c-q" style="width:240px" placeholder="${esc(PD.t('cust.search'))}"><label class="row small" style="gap:6px"><input type="checkbox" id="c-hd"> ${esc(PD.t('cust.hasDue'))}</label><select class="in" id="c-sort">${U.opts([['name', PD.t('cust.s.name')], ['due', PD.t('cust.s.due')], ['days', PD.t('cust.s.days')]], 'name')}</select><span class="sp"></span><span class="chip" id="c-tot"></span><button class="btn p" id="c-add">${ic('plus')} ${esc(PD.t('cust.add'))}</button>${owner ? `<button class="btn" id="c-exp">${ic('download')} ${esc(PD.t('cust.export'))}</button>` : ''}</div><div id="c-list"></div>`;
     let pg; const go = () => { pg = U.pager($('#c-list'), (cur) => PD.try('customers.list', { q: f.q || undefined, has_due: f.has_due || undefined, sort: f.sort, limit: 50, cursor: cur || undefined }), (rows, d) => draw(rows, d)); };
     $('#c-q').addEventListener('input', U.debounce((e) => { f.q = e.target.value.trim(); go(); })); $('#c-hd').addEventListener('change', (e) => { f.has_due = e.target.checked; go(); }); $('#c-sort').addEventListener('change', (e) => { f.sort = e.target.value; go(); });
@@ -47,7 +47,7 @@
     go();
   }
   async function detail(c, onChange) {
-    const owner = PD.S.role === 'owner'; const [d, e] = await PD.try('customers.ledger', { customer_id: c.id }); if (e) { U.err(e); return; }
+    const owner = PD.power(); const [d, e] = await PD.try('customers.ledger', { customer_id: c.id }); if (e) { U.err(e); return; }
     const ag = d.aging; const buckets = [ag.d0_7, ag.d8_30, ag.d31_60, ag.d60p];
     const kindT = (r) => (PD.i18n.dict.en['ledger.' + r.kind] ? PD.t('ledger.' + r.kind) : r.kind);
     const m = PD.modal({ title: esc(c.name), titleText: c.name, size: 'wide',

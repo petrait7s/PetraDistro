@@ -21,7 +21,7 @@
           <div class="form-row" style="margin-top:8px"><label class="l" for="pn-new">${esc(PD.t('set.pin.new'))}</label><input class="in" id="pn-new" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div>
           <p class="small" id="pn-err" style="color:var(--bad);min-height:18px;margin:8px 0 0"></p><button class="btn p" id="pn-go">${esc(PD.t('set.pin.go'))}</button></section>
         ${owner ? `<section class="card"><h3>${PD.ic('shield', 16)} ${esc(PD.t('set.shop'))}</h3>
-          <div class="form-row"><label class="l" for="sh-name">${esc(PD.t('set.shop.name'))}</label><div class="row"><input class="in" id="sh-name" style="flex:1" value="${esc(st['business.name'] || '')}"><button class="btn p" id="sh-save">${esc(PD.t('common.save'))}</button></div></div>
+          <div class="form-row"><label class="l">${esc(PD.t('brand.logo'))}</label><div class="row" style="gap:10px;align-items:center"><div class="logo-prev">${PD.bizLogo() ? `<img src="${PD.bizLogo()}" alt="">` : PD.ic('box', 22)}</div><button class="btn" id="sh-logo">${PD.ic('download', 15)} ${esc(PD.t('brand.pick'))}</button>${PD.bizLogo() ? `<button class="btn ghost" id="sh-logo-x">${esc(PD.t('brand.remove'))}</button>` : ''}</div></div><div class="form-row"><label class="l" for="sh-name">${esc(PD.t('set.shop.name'))}</label><div class="row"><input class="in" id="sh-name" style="flex:1" value="${esc(st['business.name'] || '')}"><button class="btn p" id="sh-save">${esc(PD.t('common.save'))}</button></div></div>
           <div class="setrow" style="margin-top:8px"><span>${esc(PD.t('set.lock.idle'))}</span><input class="in r" id="sh-idle" data-num inputmode="numeric" style="width:80px" value="${esc(st['lock.idle_minutes'] == null ? 10 : st['lock.idle_minutes'])}"></div>
           <h3 style="margin-top:14px">${esc(PD.t('set.access'))}</h3>
           ${sw('calc.enabled', st['calc.enabled'] !== false, PD.t('set.calc.enabled'))}${sw('games.enabled', st['games.enabled'] !== false, PD.t('set.games.enabled'))}${sw('games.manager_enabled', st['games.manager_enabled'] !== false, PD.t('set.games.manager'))}</section>` : `<section class="card"><p class="muted" style="margin:0">${esc(PD.t('set.owner.only'))}</p></section>`}
@@ -33,7 +33,10 @@
         el.querySelector('#pn-old').value = el.querySelector('#pn-new').value = ''; el.querySelector('#pn-err').textContent = ''; PD.toast(PD.t('set.pin.done'));
       });
       if (!owner) return;
-      const save = async (patch) => { const [d, e] = await PD.try('settings.set', { patch }); if (e) { PD.toast(PD.errText(e), 'bad'); return false; } PD.S.settings = d; PD.toast(PD.t('set.saved')); return true; };
+      const save = async (patch) => { const [d, e] = await PD.try('settings.set', { patch }); if (e) { PD.toast(PD.errText(e), 'bad'); return false; } PD.S.settings = Object.assign({}, PD.S.settings, d); PD.toast(PD.t('set.saved')); return true; };
+      const setLogo = async (u) => { if (await save({ 'business.logo': u })) { PD.S.bizLogo = u; PD.toast(PD.t('brand.saved'), 'ok'); PD.refreshApp(); } };
+      const lb = el.querySelector('#sh-logo'); if (lb) lb.addEventListener('click', async () => { const u = await PD.ui.pickLogo(); if (u) setLogo(u); });
+      const lx = el.querySelector('#sh-logo-x'); if (lx) lx.addEventListener('click', () => setLogo(''));
       el.querySelector('#sh-save').addEventListener('click', () => save({ 'business.name': el.querySelector('#sh-name').value.trim() }));
       el.querySelector('#sh-idle').addEventListener('change', (e) => { const n = Math.max(1, Math.min(240, parseInt(e.target.value, 10) || 10)); e.target.value = n; save({ 'lock.idle_minutes': n }); });
       el.querySelectorAll('[data-sw]').forEach((b) => b.addEventListener('click', async () => {

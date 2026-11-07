@@ -7,11 +7,11 @@
 
   const NAV = [
     { g: 'nav.g.daily', items: [['dashboard', 'dash'], ['sales', 'cart'], ['payments', 'cash'], ['returns', 'undo'], ['loadsheet', 'truck'], ['cash', 'receipt']] },
-    { g: 'nav.g.stock', items: [['inventory', 'box'], ['lots', 'layers'], ['purchases', 'download', 'owner']] },
+    { g: 'nav.g.stock', items: [['inventory', 'box'], ['lots', 'layers'], ['purchases', 'download', 'power']] },
     { g: 'nav.g.accounts', items: [['customers', 'users'], ['expenses', 'route'], ['commission', 'percent', 'owner'], ['audit', 'shield', 'owner'], ['settings', 'gear']] }
   ];
   PD.NAV = NAV;
-  const navFor = (role) => NAV.map((g) => ({ g: g.g, items: g.items.filter((i) => !i[2] || i[2] === role) })).filter((g) => g.items.length);
+  const navFor = (role) => NAV.map((g) => ({ g: g.g, items: g.items.filter((i) => !i[2] || i[2] === role || (i[2] === 'power' && PD.power())) })).filter((g) => g.items.length);
 
   PD.show = (fn) => { current = fn; clearInterval(cdTimer); PD.closeAllModals(); fn(); PD.i18n.apply($('#win')); };
   PD.rerender = () => { if (current) { const v = PD.S.view; current(); PD.S.view = v; PD.i18n.apply($('#win')); } };
@@ -53,7 +53,11 @@
   }
   const authTools = () => `<div class="auth-tools">${langTheme()}</div>`;
 
-  const side = (title, text, items) => `<div class="side"><img class="lg" src="assets/petra-logo.png" alt="Petra Software Solutions"><div><h2>${esc(title)}</h2><p>${esc(text)}</p></div>${items ? `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : '<div></div>'}</div>`;
+  const bizLogo = () => { const st = PD.S.settings || {}; const v = PD.S.role && st['business.logo'] != null ? st['business.logo'] : PD.S.bizLogo; return /^data:image\/(png|jpeg);base64,/.test(v || '') ? v : ''; };
+  PD.bizLogo = bizLogo;
+  const side = (title, text, items) => `<div class="side"><div class="pbrand"><img src="assets/petra-mark.png" alt="Petra"><div><b>PETRA</b><span>${esc(PD.t('brand.motto'))}</span></div></div>
+    <div class="client">${bizLogo() ? `<div class="clogo"><img src="${bizLogo()}" alt=""></div>` : `<div class="clogo empty">${ic('box', 34)}<span>${esc(PD.t('brand.yourLogo'))}</span></div>`}${PD.S.bizName ? `<div class="cname">${esc(PD.S.bizName)}</div>` : ''}</div>
+    <div class="sidetext"><h2>${esc(title)}</h2><p>${esc(text)}</p>${items ? `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''}</div></div>`;
   const steps = (n) => `<div class="steps" aria-label="${esc(PD.t('auth.step', { n: PD.digits(n), m: PD.digits(3) }))}">${[1, 2, 3].map((i) => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</div>`;
   const pinFilter = (inp) => inp.addEventListener('input', () => { const v = inp.value.replace(/\D/g, ''); if (v !== inp.value) inp.value = v; });
 
@@ -70,15 +74,17 @@
   /* ---------- setup ---------- */
   function screenSetup() {
     const f = (id, label, o) => `<div class="${o && o.full ? 'full' : ''}"><label class="l" for="${id}">${esc(PD.t(label))}</label><input class="in" id="${id}" style="width:100%" ${o && o.pin ? 'type="password" inputmode="numeric" maxlength="8" autocomplete="off"' : 'autocomplete="off"'}></div>`;
-    $('#stage').innerHTML = `<div class="auth">${authTools()}${side(PD.t('setup.side.title'), PD.t('setup.side.text'))}<div class="form">${steps(2)}<h2>${esc(PD.t('setup.title'))}</h2><p class="muted" style="margin:0">${esc(PD.t('setup.sub'))}</p><div class="fg">${f('su-biz', 'setup.biz', { full: 1 })}${f('su-addr', 'setup.addr', { full: 1 })}${f('su-phone', 'setup.phone')}<div></div>${f('su-on', 'setup.owner')}${f('su-op', 'setup.ownerPin', { pin: 1 })}${f('su-mn', 'setup.manager')}${f('su-mp', 'setup.managerPin', { pin: 1 })}</div><p class="err" id="su-err" role="alert"></p><div class="row"><button class="btn p" id="su-go">${esc(PD.t('setup.go'))}</button></div></div></div>`;
+    $('#stage').innerHTML = `<div class="auth">${authTools()}${side(PD.t('setup.side.title'), PD.t('setup.side.text'))}<div class="form">${steps(2)}<h2>${esc(PD.t('setup.title'))}</h2><p class="muted" style="margin:0">${esc(PD.t('setup.sub'))}</p><div class="fg">${f('su-biz', 'setup.biz', { full: 1 })}${f('su-addr', 'setup.addr', { full: 1 })}${f('su-phone', 'setup.phone')}<div class="form-row"><label class="l">${esc(PD.t('brand.logo'))}</label><div class="row" style="gap:8px"><button class="btn" type="button" id="su-logo">${ic('download', 15)} ${esc(PD.t('brand.pick'))}</button><img id="su-logo-p" alt="" style="height:36px;max-width:120px;object-fit:contain;display:none"></div></div>${f('su-on', 'setup.owner')}${f('su-op', 'setup.ownerPin', { pin: 1 })}${f('su-mn', 'setup.manager')}${f('su-mp', 'setup.managerPin', { pin: 1 })}</div><p class="err" id="su-err" role="alert"></p><div class="row"><button class="btn p" id="su-go">${esc(PD.t('setup.go'))}</button></div></div></div>`;
     wireLangTheme($('.auth')); pinFilter($('#su-op')); pinFilter($('#su-mp')); $('#su-biz').focus();
+    const lp = $('#su-logo-p'); if (PD.S.setupLogo) { lp.src = PD.S.setupLogo; lp.style.display = ''; }
+    $('#su-logo').addEventListener('click', async () => { const u = await PD.ui.pickLogo(); if (!u) return; PD.S.setupLogo = u; PD.S.bizLogo = u; lp.src = u; lp.style.display = ''; const cl = $('.auth .client .clogo'); if (cl) { cl.className = 'clogo'; cl.innerHTML = '<img alt="">'; cl.firstChild.src = u; } });
     $('#su-go').addEventListener('click', async () => {
       const v = (id) => $(id).value.trim(); const err = $('#su-err'); err.textContent = '';
       $$('.in', $('.form')).forEach((i) => i.removeAttribute('aria-invalid'));
       if (!v('#su-biz')) { err.textContent = PD.t('common.required') + ': ' + PD.t('setup.biz'); $('#su-biz').setAttribute('aria-invalid', 'true'); return; }
       if (v('#su-op').length < 4 || v('#su-mp').length < 4) { err.textContent = PD.t('err.VALIDATION'); return; }
       if (v('#su-op') === v('#su-mp')) { err.textContent = PD.t('setup.samePin'); return; }
-      const [, e] = await PD.try('setup.complete', { business: { name: v('#su-biz'), address: v('#su-addr'), phone: v('#su-phone') }, owner: { name: v('#su-on') || PD.t('role.owner'), pin: v('#su-op') }, manager: { name: v('#su-mn') || PD.t('role.manager'), pin: v('#su-mp') }, language: PD.lang(), theme: (PD.S.prefs && PD.S.prefs.theme) || 'light' });
+      const [, e] = await PD.try('setup.complete', { business: { name: v('#su-biz'), address: v('#su-addr'), phone: v('#su-phone'), logo: PD.S.setupLogo || undefined }, owner: { name: v('#su-on') || PD.t('role.owner'), pin: v('#su-op') }, manager: { name: v('#su-mn') || PD.t('role.manager'), pin: v('#su-mp') }, language: PD.lang(), theme: (PD.S.prefs && PD.S.prefs.theme) || 'light' });
       if (e) { err.textContent = PD.errText(e); return; } await PD.route();
     });
   }
@@ -119,7 +125,7 @@
   }
   function screenApp() {
     const S = PD.S; const nav = navFor(S.role); if (!nav.some((g) => g.items.some((i) => i[0] === S.view))) S.view = 'dashboard';
-    $('#stage').innerHTML = `<nav class="rail" aria-label="${esc(PD.t('top.menu'))}"><div class="brand"><img src="assets/petra-logo.png" alt="PetraDMS"></div><div class="navlist">${nav.map((g) => `<div class="grp">${esc(PD.t(g.g))}</div>${g.items.map((i) => `<button class="ni ${S.view === i[0] ? 'on' : ''}" data-nav="${i[0]}" ${S.view === i[0] ? 'aria-current="page"' : ''}>${ic(i[1])}<span>${esc(PD.t('nav.' + i[0]))}</span></button>`).join('')}`).join('')}</div><div class="who"><div class="wn"><b>${esc(S.user.name)}</b><span>${esc(PD.t('role.' + S.role))}</span></div><div class="row"><button id="b-lock">${ic('lock', 14)} ${esc(PD.t('top.lock'))}</button><button id="b-out">${ic('back', 14)} ${esc(PD.t('top.logout'))}</button></div></div></nav><div class="work"><div class="top"><h1>${esc(PD.t('nav.' + S.view))}</h1><span class="sp"></span><div class="tools">${topTools()}</div></div><main class="view" id="view"></main></div>`;
+    $('#stage').innerHTML = `<nav class="rail" aria-label="${esc(PD.t('top.menu'))}"><div class="brand">${PD.bizLogo() ? `<img class="cl" src="${PD.bizLogo()}" alt="">` : `<img class="pm" src="assets/petra-mark.png" alt="">`}<div class="bn"><b>${esc((PD.S.settings || {})['business.name'] || PD.S.bizName || 'PetraDMS')}</b><span>PetraDMS</span></div></div><div class="navlist">${nav.map((g) => `<div class="grp">${esc(PD.t(g.g))}</div>${g.items.map((i) => `<button class="ni ${S.view === i[0] ? 'on' : ''}" data-nav="${i[0]}" ${S.view === i[0] ? 'aria-current="page"' : ''}>${ic(i[1])}<span>${esc(PD.t('nav.' + i[0]))}</span></button>`).join('')}`).join('')}</div><div class="who"><div class="wn"><b>${esc(S.user.name)}</b><span>${esc(PD.t('role.' + S.role))}</span></div><div class="row"><button id="b-lock">${ic('lock', 14)} ${esc(PD.t('top.lock'))}</button><button id="b-out">${ic('back', 14)} ${esc(PD.t('top.logout'))}</button></div></div></nav><div class="work"><div class="top"><h1>${esc(PD.t('nav.' + S.view))}</h1><span class="sp"></span><div class="tools">${topTools()}</div></div><main class="view" id="view"></main></div>`;
     $$('[data-nav]').forEach((b) => b.addEventListener('click', () => { S.view = b.dataset.nav; screenApp(); PD.i18n.apply($('#win')); }));
     $('#b-lock').addEventListener('click', () => PD.session.lock()); $('#b-out').addEventListener('click', () => PD.session.logout());
     wireLangTheme($('.top'));
@@ -142,6 +148,7 @@
   PD.route = async () => {
     const [ls, e] = await PD.try('license.status', {});
     if (e) { $('#stage').innerHTML = `<div class="empty">${esc(PD.errText(e))}</div>`; return; }
+    PD.S.bizLogo = ls.business_logo || ''; PD.S.bizName = ls.business_name || '';
     if (ls.state !== 'active') return PD.show(screenLicense);
     if (!ls.setup_done) return PD.show(screenSetup);
     if (PD.S.role) return PD.show(screenApp);

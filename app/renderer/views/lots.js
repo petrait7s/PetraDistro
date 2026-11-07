@@ -11,7 +11,7 @@
   });
   PD.views.lots = {
     render(el) {
-      const owner = PD.S.role === 'owner'; const f = { product: null, group: '', near: 0, only: true };
+      const owner = PD.power(); const f = { product: null, group: '', near: 0, only: true };
       el.innerHTML = `${U.h(PD.t('lots.title'), '')}<div class="row wrap" style="margin-bottom:12px;gap:10px"><div id="lt-p" style="width:260px"></div><label class="small muted">${esc(PD.t('lots.group'))}</label><select class="in" id="lt-g">${U.opts(['', 'received_month', 'expiry_month'].map((g) => [g, PD.t('lots.g.' + (g || 'none'))]), '')}</select><label class="small muted">${esc(PD.t('lots.near'))}</label><select class="in" id="lt-n">${U.opts([[0, PD.t('lots.n.all')], [30, PD.t('lots.days', { n: PD.digits(30) })], [60, PD.t('lots.days', { n: PD.digits(60) })], [90, PD.t('lots.days', { n: PD.digits(90) })]], 0)}</select><label class="row small" style="gap:6px"><input type="checkbox" id="lt-o" checked> ${esc(PD.t('lots.only'))}</label>${owner ? `<span class="sp"></span><button class="btn" id="lt-x">${ic('download')} ${esc(PD.t('inv.export'))}</button>` : ''}</div><div id="lt-g2"></div><div id="lt-b"></div>`;
       const pp = U.prodPicker($('#lt-p'), { keep: true, placeholder: PD.t('prod.search'), onPick: (it) => { f.product = it.id; go(); } }); pp.input.addEventListener('input', () => { if (!pp.input.value) { f.product = null; go(); } });
       $('#lt-g').addEventListener('change', (e) => { f.group = e.target.value; go(); }); $('#lt-n').addEventListener('change', (e) => { f.near = +e.target.value; go(); }); $('#lt-o').addEventListener('change', (e) => { f.only = e.target.checked; go(); }); if (owner) $('#lt-x').addEventListener('click', () => U.exportTable('lots', 'csv'));

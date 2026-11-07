@@ -1983,6 +1983,9 @@
         },
         "calc.enabled": {
           "type": "boolean"
+        },
+        "manager.full_access": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -1991,7 +1994,8 @@
         "business.phone",
         "games.manager_enabled",
         "games.enabled",
-        "calc.enabled"
+        "calc.enabled",
+        "manager.full_access"
       ],
       "additionalProperties": false
     },
@@ -2456,6 +2460,30 @@
               "type": "null"
             }
           ]
+        },
+        "manager.full_access": {
+          "type": "boolean"
+        },
+        "business.logo": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 400000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "editmode.required": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [],
@@ -2506,7 +2534,8 @@
         "state": "enum(none|active|invalid|revoked)",
         "business_name": "string?",
         "code_masked": "string?  (PETRA-MMTR-••••-••••)",
-        "setup_done": "bool"
+        "setup_done": "bool",
+        "business_logo": "string?  (data:image/... URL)"
       },
       "errors": [
         "DB",
@@ -2559,11 +2588,23 @@
           },
           "setup_done": {
             "type": "boolean"
+          },
+          "business_logo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 400000
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "state",
-          "setup_done"
+          "setup_done",
+          "business_logo"
         ],
         "additionalProperties": false
       }
@@ -2624,7 +2665,8 @@
         "business": {
           "name": "string",
           "address": "string?",
-          "phone": "string?"
+          "phone": "string?",
+          "logo": "string?  (data:image/png|jpeg URL, <= 400 KB)"
         },
         "owner": {
           "name": "string",
@@ -2679,6 +2721,17 @@
                   {
                     "type": "string",
                     "maxLength": 1000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "logo": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 400000
                   },
                   {
                     "type": "null"

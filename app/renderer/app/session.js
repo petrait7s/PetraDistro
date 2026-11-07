@@ -35,5 +35,8 @@
     }
   };
   PD.canGames = () => { const s = PD.S.settings || {}; return !!(PD.S.role && s['games.enabled'] !== false && (PD.S.role === 'owner' || s['games.manager_enabled'] !== false)); };
+  /* owner, or manager while the owner keeps manager.full_access on (default) */
+  PD.power = () => PD.S.role === 'owner' || (PD.S.role === 'manager' && (PD.S.settings || {})['manager.full_access'] !== false);
+  PD.editPin = () => !!(PD.S.settings || {})['editmode.required'];
   PD.canCalc = () => !!(PD.S.role && (PD.S.settings || {})['calc.enabled'] !== false);
 })(typeof window !== 'undefined' ? window : globalThis);

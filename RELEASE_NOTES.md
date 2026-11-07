@@ -1,5 +1,12 @@
 # Release notes
 
+## 1.6.0
+- Manager full access (setting `manager.full_access`, default on): the manager edits products, stock, purchases, companies and customers, sees buy rates, and works on any date, with no PIN. Owner-only stays: settings, users/PINs, backups, license, audit, salaries, commission, reversals and refunds. The owner can switch it off in Settings > Business rules.
+- Edit mode PIN is off by default (setting `editmode.required`); turn it on in Settings > Business rules.
+- Branding: small Petra mark with the motto "Built on Trust" on the login/setup screens; the client company logo in the centre and in the sidebar. Logo upload in first setup and in Settings > Shop settings (PNG/JPEG, resized to 360 px). `license.status` returns `business_logo`; `setup.complete` accepts `business.logo`.
+- New app icon from the Petra mark.
+- Fix: saving one setting no longer clears the other settings shown on the page.
+
 ## 1.5.0
 - License: fixed owner code (`PETRA_LICENSE_CODE` build secret, hash only in the app). Dashes/case ignored; also accepted for PIN reset.
 - Purchases: rebuilt "Receive goods" screen, now the first tab. "Select many products" checklist, "New product" and "+ company" buttons, per line pcs per carton, buy rate, wholesale and retail rate, expiry, amount. One save, no edit-mode PIN.

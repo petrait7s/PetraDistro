@@ -52,3 +52,14 @@ test('fixed owner license code: only the hash is needed, dashes and case ignored
   await ok(e,'auth.resetPin',{license_code:'PETRA-SOFT-SHU7S-TAN',new_pin:'9999'});
   await ok(e,'auth.login',{role:'owner',pin:'9999'});
 });
+
+test('manager full access (default): products, stock, purchases without PIN; owner-only admin stays owner-only',async()=>{
+  const e=await boot(null,{managerFull:true});const p=await product(e,{pcs_per_carton:12,cost_price:100000});
+  await ok(e,'editmode.disable',{});await ok(e,'auth.logout',{});await ok(e,'auth.login',{role:'manager',pin:'5678'});
+  const g=(await ok(e,'products.get',{id:p.id})).product;assert.equal(g.cost_price,100000);
+  await ok(e,'products.save',{id:p.id,sku:g.sku,name:g.name+' X',sell_mode:g.sell_mode,pcs_per_carton:12,list_price:150000,cost_price:100000,max_discount:{per_unit:0}});
+  await ok(e,'stock.adjust',{product_id:p.id,delta:{cartons:2},sign:'plus',reason:'count',received_date:'2026-11-01'});
+  await ok(e,'purchases.create',{company_id:p.company_id,date:'2026-11-05',lines:[{product_id:p.id,qty:{cartons:1},unit_cost:100000}]});
+  assert.equal((await ok(e,'products.get',{id:p.id})).product.stock.base,36);
+  for(const [m,a] of [['settings.set',{patch:{'business.name':'X'}}],['users.setPin',{user_id:1,new_pin:'0000'}],['backup.create',{}]]){const r=await e.call(m,a);assert.equal(r.code,'FORBIDDEN',m);}
+});

@@ -1,4 +1,4 @@
-# PetraDMS Pro v1.5.0 (backend + frontend, integrated)
+# PetraDMS Pro v1.6.0 (backend + frontend, integrated)
 
 Offline Windows desktop app for MM Traders (Electron + SQLite/sql.js). Frontend: `app/renderer` (vanilla JS, bn/en, light/dark). Backend: `app/src` (worker thread, contract-validated). The renderer talks only through `window.api.call` (preload).
 
@@ -24,7 +24,7 @@ Local build: (run on Windows, or in the supplied GitHub workflow)
     cd app
     set PETRA_LICENSE_SECRET=<your private 32+ char secret>
     npm run dist
-Output: `dist/PetraDMS-Setup-1.5.0.exe` and a portable exe. Keep the secret private: it signs license codes. `npm run dist` writes the secret into `app/src/build-config.js`; do not commit that file after a local build (`git checkout app/src/build-config.js`).
+Output: `dist/PetraDMS-Setup-1.6.0.exe` and a portable exe. Keep the secret private: it signs license codes. `npm run dist` writes the secret into `app/src/build-config.js`; do not commit that file after a local build (`git checkout app/src/build-config.js`).
 
 ## License code
 Release builds use one fixed owner code that only you know (letters and digits, at least 8; dashes, spaces and case are ignored).

@@ -41,7 +41,7 @@
 
   PD.views.inventory = {
     async render(el) {
-      const owner = PD.S.role === 'owner'; const idle = 10;
+      const owner = PD.power(); const idle = 10;
       const S = { rows: [], q: '', company: '', status: '', sort: { key: 'name', dir: 'asc' }, edit: false, cur: { r: 0, c: 0 }, sel: null, staged: new Map(), undo: [], inverse: null, editing: null, totals: null, idleT: null };
       el.classList.add('flush');
       el.innerHTML = `<div class="gridbar" id="g-bar"></div><div id="g-banner"></div><div class="gwrap"><div class="gscroll" id="g-scroll" tabindex="0"></div></div><div class="gstat" id="g-stat"></div>`;
@@ -166,11 +166,12 @@
       /* ---------- edit mode ---------- */
       function idleReset() { clearTimeout(S.idleT); if (!S.edit) return; S.idleT = setTimeout(() => { if (S.edit) setEdit(false, true); }, idle * 60000); }
       async function setEdit(on, auto) {
-        if (!on) { await PD.try('editmode.disable', {}); S.edit = false; clearTimeout(S.idleT); if (auto) PD.toast(PD.t('inv.editOff'), 'warn'); } else S.edit = true;
+        if (!on) { if (PD.editPin()) await PD.try('editmode.disable', {}); S.edit = false; clearTimeout(S.idleT); if (auto) PD.toast(PD.t('inv.editOff'), 'warn'); } else S.edit = true;
         bar(); paint(); banner(); $('#g-scroll').focus(); idleReset();
       }
       function toggleEdit() {
         if (S.edit) { if (S.staged.size && !confirmLeave()) return; setEdit(false); return; }
+        if (!PD.editPin()) { setEdit(true); return; }
         let done = false;
         const m = PD.modal({ title: ic('key') + ' ' + esc(PD.t('inv.pinTitle')), titleText: PD.t('inv.pinTitle'), body: `<p class="muted" style="margin:0 0 10px">${esc(PD.t('inv.pinText'))}</p><label class="l" for="em-pin">${esc(PD.t('inv.pin'))}</label><input class="in" id="em-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" style="width:100%;text-align:center;letter-spacing:.4em"><div class="bad-t small" id="em-err" style="min-height:18px;margin-top:6px"></div>`,
           buttons: [{ label: PD.t('common.cancel') }, { label: PD.t('approve.go'), cls: 'p', main: true, onClick: async (mm) => { const [, e] = await PD.try('editmode.enable', { owner_pin: $('#em-pin', mm.el).value }); if (e) { $('#em-err', mm.el).textContent = e.details && e.details.code === 'BAD_PIN' ? PD.t('inv.pinBad') : PD.errText(e); $('#em-pin', mm.el).value = ''; return false; } done = true; setEdit(true); } }] });

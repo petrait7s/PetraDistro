@@ -21,7 +21,7 @@
 
   PD.views.dashboard = {
     async render(el) {
-      const owner = PD.S.role === 'owner'; const t = U.today(); let rg = { from: owner ? U.monthStart(t) : t, to: t }; let metric = 'sales'; let group = 'product';
+      const owner = PD.power(); const t = U.today(); let rg = { from: owner ? U.monthStart(t) : t, to: t }; let metric = 'sales'; let group = 'product';
       el.innerHTML = `${U.h(PD.t('dash.title'), '<span id="d-range"></span>', owner ? '' : PD.t('dash.mine'))}<div id="d-kpi"></div><div class="cols c2" style="margin-top:14px"><div class="card" id="d-trend"></div><div class="card" id="d-alerts"></div></div>${owner ? '<div class="cols c2" style="margin-top:14px"><div class="card" id="d-flags"></div><div class="card" id="d-disc"></div></div><div class="card" id="d-prod" style="margin-top:14px"></div>' : ''}`;
       U.range($('#d-range'), { from: rg.from, to: rg.to, onChange: (r) => { rg = r; load(); } });
       async function kpis() {

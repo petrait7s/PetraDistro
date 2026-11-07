@@ -14,7 +14,7 @@
   });
   PD.views.returns = {
     render(el) {
-      let tab = PD.S.returnSale ? 'new' : PD.S.retTab || (PD.S.role === 'owner' ? 'list' : 'new');
+      let tab = PD.S.returnSale ? 'new' : PD.S.retTab || (PD.power() ? 'list' : 'new');
       el.innerHTML = `<div class="tabs"><button class="tab ${tab === 'new' ? 'on' : ''}" data-tab="new">${esc(PD.t('ret.tab.new'))}</button><button class="tab ${tab === 'list' ? 'on' : ''}" data-tab="list">${esc(PD.t('ret.tab.list'))}</button></div><div id="r-b"></div>`;
       $$('[data-tab]', el).forEach((b) => b.addEventListener('click', () => { PD.S.retTab = b.dataset.tab; PD.S.returnSale = null; PD.refreshApp(); }));
       (tab === 'new' ? newTab : listTab)($('#r-b'));
@@ -38,7 +38,7 @@
     draw(); if (PD.S.returnSale) { const id = PD.S.returnSale; PD.S.returnSale = null; load(id); }
   }
   function listTab(h) {
-    const owner = PD.S.role === 'owner'; const t = U.today(); const f = { from: U.addDays(t, -30), to: t, status: '' };
+    const owner = PD.power(); const t = U.today(); const f = { from: U.addDays(t, -30), to: t, status: '' };
     h.innerHTML = `<div class="row wrap" style="margin-bottom:12px;gap:10px"><span id="rl-r"></span><select class="in" id="rl-s">${U.opts([['', PD.t('ui.all')], ['pending', PD.t('ret.st.pending')], ['approved', PD.t('ret.st.approved')], ['rejected', PD.t('ret.st.rejected')]], '')}</select></div><div id="rl-b"></div>`;
     const go = () => U.pager($('#rl-b'), (cur) => PD.try('returns.list', { from: f.from, to: f.to, status: f.status || undefined, limit: 60, cursor: cur || undefined }), (rows) => {
       const b = $('#rl-b'); const keep = $('[data-more]', b);

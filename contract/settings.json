@@ -20,7 +20,10 @@
     "invoice.discount_owner_only": true,
     "cash.drawer_count": 1,
     "van.count": 1,
-    "vat.enabled": false
+    "vat.enabled": false,
+    "manager.full_access": true,
+    "editmode.required": false,
+    "business.logo": ""
   },
   "public": [
     "business.name",
@@ -31,7 +34,10 @@
     "games.enabled",
     "games.manager_enabled",
     "calc.enabled",
-    "numerals.default"
+    "numerals.default",
+    "manager.full_access",
+    "editmode.required",
+    "business.logo"
   ],
   "schema": {
     "type": "object",
@@ -271,6 +277,16 @@
             "type": "null"
           }
         ]
+      },
+      "manager.full_access": {
+        "type": "boolean"
+      },
+      "editmode.required": {
+        "type": "boolean"
+      },
+      "business.logo": {
+        "type": "string",
+        "maxLength": 400000
       }
     },
     "required": [],

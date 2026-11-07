@@ -32,7 +32,7 @@
         $('#ld-save').addEventListener('click', () => save()); $('#ld-sub').addEventListener('click', submit);
       }
       async function extra() {
-        const x = $('#ld-x'); const [iv] = await PD.try('sales.list', { from: st.date, to: st.date, van: true, status: 'completed', limit: 200 }); const [tr] = PD.S.role === 'owner' ? await PD.try('loadsheet.list', { limit: 14 }) : [null]; const rows = iv ? iv.rows : [];
+        const x = $('#ld-x'); const [iv] = await PD.try('sales.list', { from: st.date, to: st.date, van: true, status: 'completed', limit: 200 }); const [tr] = PD.power() ? await PD.try('loadsheet.list', { limit: 14 }) : [null]; const rows = iv ? iv.rows : [];
         const tot = rows.reduce((a, r) => ({ t: a.t + r.total, p: a.p + r.paid, d: a.d + r.due }), { t: 0, p: 0, d: 0 });
         x.innerHTML = `<div class="cols"><div class="card"><div class="row" style="margin-bottom:8px"><h3 style="margin:0">${esc(PD.t('ld.vanInv'))}</h3><span class="sp"></span><button class="btn p" id="ld-new">${ic('plus')} ${esc(PD.t('ld.newInv'))}</button></div>${rows.length ? `${U.table([{ label: PD.t('sales.c.no'), f: (r) => r.invoice_no, cls: 'mono' }, { label: PD.t('sales.c.cust'), f: (r) => r.customer }, { label: PD.t('sales.c.total'), r: 1, f: (r) => PD.money(r.total) }, { label: PD.t('sales.c.paid'), r: 1, f: (r) => PD.money(r.paid) }, { label: PD.t('sales.c.due'), r: 1, f: (r) => PD.money(r.due) }], rows)}<p class="small" style="margin:8px 0 0"><b>${esc(PD.t('ld.sumLine', { t: PD.money(tot.t), p: PD.money(tot.p), d: PD.money(tot.d) }))}</b></p>` : U.empty(PD.t('ld.noInv'))}<div class="row" style="margin-top:10px"><button class="btn" id="ld-rep">${ic('receipt')} ${esc(PD.t('ld.report'))}</button></div></div>
         <div class="card"><h3>${esc(PD.t('ld.trips'))}</h3>${tr ? U.table([{ label: PD.t('ld.date'), f: (r) => PD.date(r.date) }, { label: PD.t('ld.t.sales'), r: 1, f: (r) => PD.digits(r.sales_count) }, { label: PD.t('ld.t.total'), r: 1, f: (r) => PD.money(r.sales_total) }, { label: PD.t('ld.t.paid'), r: 1, f: (r) => PD.money(r.paid) }, { label: PD.t('ld.t.due'), r: 1, f: (r) => PD.money(r.due) }, { label: PD.t('ld.t.state'), f: (r) => PD.t(r.submitted ? 'ld.t.done' : 'ld.t.open') }], tr.rows) : '<span class="muted small">—</span>'}</div></div>`;
@@ -60,7 +60,7 @@
   /* ---------------- cash close ---------------- */
   PD.views.cash = {
     async render(el) {
-      const owner = PD.S.role === 'owner'; let date = U.today();
+      const owner = PD.power(); let date = U.today();
       el.innerHTML = `${U.h(PD.t('cash.title'), '')}<div class="row" style="margin-bottom:12px"><label class="small muted">${esc(PD.t('cash.date'))}</label><input type="date" class="in" id="ch-d" value="${date}" max="${date}"></div><div class="cols c2"><div class="card" id="ch-a"></div><div class="card" id="ch-h"></div></div>`;
       $('#ch-d').addEventListener('change', (e) => { date = e.target.value; go(); });
       async function go() {
@@ -88,7 +88,7 @@
   };
   const typeLabel = (k) => (PD.i18n.dict.en['exp.t.' + k] ? PD.t('exp.t.' + k) : k);
   function expTab(h) {
-    const owner = PD.S.role === 'owner'; const t = U.today(); const f = { from: owner ? U.monthStart(t) : t, to: t };
+    const owner = PD.power(); const t = U.today(); const f = { from: owner ? U.monthStart(t) : t, to: t };
     h.innerHTML = `<div class="card" style="margin-bottom:14px"><div class="fgrid" style="align-items:end">${U.field('ex-t', PD.t('exp.type'), `<select class="in" id="ex-t">${U.opts(EXP_TYPES.map((k) => [k, typeLabel(k)]), 'fuel')}</select>`)}${U.field('ex-a', PD.t('exp.amount'), U.moneyIn('ex-a', null))}${U.field('ex-n', PD.t('exp.note'), '<input class="in" id="ex-n">')}${owner ? U.field('ex-d', PD.t('exp.date'), `<input type="date" class="in" id="ex-d" value="${t}" max="${t}">`) : ''}<div><button class="btn p" id="ex-go">${ic('plus')} ${esc(PD.t('exp.add'))}</button></div></div></div>${owner ? '<div class="row wrap" style="margin-bottom:10px"><span id="ex-r"></span><span class="sp"></span><span class="chip" id="ex-tot"></span></div>' : ''}<div id="ex-l"></div>`;
     const go = () => U.pager($('#ex-l'), (cur) => PD.try('expenses.list', { from: f.from, to: f.to, limit: 60, cursor: cur || undefined }), (rows, d) => { const b = $('#ex-l'); const keep = $('[data-more]', b); if (owner) $('#ex-tot').textContent = PD.t('exp.total') + ': ' + PD.money(d.total); b.innerHTML = U.table([{ label: PD.t('exp.c.time'), f: (r) => U.dt(r.ts) }, { label: PD.t('exp.type'), f: (r) => typeLabel(r.type) }, { label: PD.t('exp.note'), f: (r) => r.note || '' }, { label: PD.t('exp.amount'), r: 1, f: (r) => PD.money(r.amount) }, { label: PD.t('exp.c.by'), f: (r) => r.created_by }], rows); if (keep) b.appendChild(keep); });
     if (owner) U.range($('#ex-r'), { from: f.from, to: f.to, onChange: (r) => { f.from = r.from; f.to = r.to; go(); } });
