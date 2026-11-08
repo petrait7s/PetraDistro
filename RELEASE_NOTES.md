@@ -1,3 +1,13 @@
+# v1.7.0 — Van stock and cash are separate
+
+- Loading the van moves stock off the godown: the load sheet is now the van's own stock.
+- Van invoices need loaded stock (sold quantity cannot exceed what is on the van); direct sales can only use godown stock.
+- Evening count: leftover goes back to the godown, shortage is written off from stock and flagged with its value; reopening a sheet restores it.
+- Van cash: invoices collected vs cash handed over, with the difference flagged.
+- Products & stock shows how much of each product is on the van (included in total stock).
+- Van invoices save without opening the print window, so many invoices can be entered quickly.
+- New `van_stock` on products, `cash` on loadsheet.get/submit, optional `cash_handed` on loadsheet.submit.
+
 # Release notes
 
 ## 1.6.0

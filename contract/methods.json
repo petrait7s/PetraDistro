@@ -514,6 +514,9 @@
               "type": "null"
             }
           ]
+        },
+        "van_stock": {
+          "$ref": "#/$defs/Qty"
         }
       },
       "required": [
@@ -9863,7 +9866,8 @@
         "id": "id?",
         "lines": "[{product_id:id, name:string, loaded:Qty, sold:Qty, returned:Qty, expected:Qty, counted:Qty?, diff:Qty?, diff_value:money?}]",
         "submitted": "bool",
-        "shortage_value": "money"
+        "shortage_value": "money",
+        "cash": "{invoices:int, sales_total:money, collected:money, due:money, handed:money?, diff:money?}"
       },
       "errors": [
         "DB",
@@ -9992,12 +9996,71 @@
             "type": "integer",
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
+          },
+          "cash": {
+            "type": "object",
+            "properties": {
+              "invoices": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "sales_total": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "collected": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "due": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "handed": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "diff": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "invoices",
+              "sales_total",
+              "collected",
+              "due",
+              "handed",
+              "diff"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
           "lines",
           "submitted",
-          "shortage_value"
+          "shortage_value",
+          "cash"
         ],
         "additionalProperties": false
       }
@@ -10082,11 +10145,13 @@
       "input": {
         "date": "date",
         "van": "string?",
-        "counted": "[{product_id:id, counted:QtyIn}]"
+        "counted": "[{product_id:id, counted:QtyIn}]",
+        "cash_handed": "money?"
       },
       "output": {
         "shortage_value": "money",
-        "flagged": "bool"
+        "flagged": "bool",
+        "cash": "{collected:money, handed:money?, diff:money?}"
       },
       "errors": [
         "DB",
@@ -10138,6 +10203,11 @@
               ],
               "additionalProperties": false
             }
+          },
+          "cash_handed": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
           }
         },
         "required": [
@@ -10156,6 +10226,64 @@
           },
           "flagged": {
             "type": "boolean"
+          },
+          "cash": {
+            "type": "object",
+            "properties": {
+              "invoices": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "sales_total": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "collected": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "due": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "handed": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "diff": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "invoices",
+              "sales_total",
+              "collected",
+              "due",
+              "handed",
+              "diff"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [

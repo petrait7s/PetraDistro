@@ -88,7 +88,7 @@
       const r = body(false); const my = ++seq; if (r.err || !st.customer || !r.b.lines.length) { prev = null; side(null); return; }
       const [d, e] = await PD.try('sales.preview', r.b); if (my !== seq) return;
       $$('[data-msg]').forEach((n) => { n.textContent = ''; }); $$('[data-net]').forEach((n) => { n.textContent = '–'; });
-      if (e) { prev = null; if (e.code === 'STOCK') { (e.details.lines || []).forEach((x) => { const idx = idxOf(r.b, x.index); const n = $('[data-msg="' + idx + '"]'); if (n) n.textContent = PD.t('sales.stockShort', { name: st.lines[idx].p.name, av: U.qty(x.available) }); }); } side(null, e); return; }
+      if (e) { prev = null; if (e.code === 'STOCK') { ((e.details && e.details.lines) || []).forEach((x) => { const idx = idxOf(r.b, x.index); const n = $('[data-msg="' + idx + '"]'); if (n) n.textContent = PD.t('sales.stockShort', { name: st.lines[idx].p.name, av: x.available && x.available.text ? U.qty(x.available) : PD.digits(String(x.available == null ? 0 : x.available)) }); }); } side(null, e); return; }
       prev = d; const map = []; st.lines.forEach((l, i) => { if (!U.qtyEmpty(l.qty) && discOf(l)) map.push(i); });
       d.lines.forEach((ln, k) => { const i = map[k]; const n = $('[data-net="' + i + '"]'); if (n) n.textContent = PD.money(ln.net); const m = $('[data-msg="' + i + '"]'); if (m) { if (!owner && ln.below_min_price) m.textContent = PD.t('sales.belowMin'); else if (!owner && ln.over_cap) m.textContent = PD.t('sales.overCap', { v: PD.money(ln.allowed_per_unit) }); } });
       side(d);
@@ -119,7 +119,7 @@
       await U.busy(btn, async () => {
         const [d, e] = await U.withApproval('discount_override', PD.t('sales.why'), (ap) => PD.try('sales.create', ap ? Object.assign({}, b, { approval: ap }) : b));
         if (e) { if (e.code !== 'CANCELLED') { if (e.code === 'STOCK') schedule(); U.err(e); } return; }
-        PD.toast(PD.t('sales.saved', { no: d.sale.invoice_no }), 'ok'); const id = d.sale.id; reset(); PD.renderStatus(); PD.openInvoice(id, { markPrinted: true });
+        PD.toast(PD.t('sales.saved', { no: d.sale.invoice_no }), 'ok'); const id = d.sale.id; reset(); PD.renderStatus(); if (st.mode !== 'van') PD.openInvoice(id, { markPrinted: true });
       });
     }
     drawLines(); side(null);

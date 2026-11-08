@@ -103,3 +103,4 @@
 :root[data-theme="dark"] .rail .brand .bn b { color: #e8eef8; }
 .logo-prev { width: 56px; height: 56px; border-radius: 12px; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; padding: 4px; color: var(--muted); }
 .logo-prev img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.van-t { color: var(--accent, #1aa7a7); }

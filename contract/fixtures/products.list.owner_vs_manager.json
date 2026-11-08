@@ -36,7 +36,7 @@
             "kg": "0.000",
             "text": {
               "en": "0 cartons",
-              "bn": "0 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+              "bn": "0 কার্টন"
             }
           },
           "stock": {
@@ -47,7 +47,7 @@
             "kg": "324.000",
             "text": {
               "en": "27 cartons",
-              "bn": "27 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+              "bn": "27 কার্টন"
             }
           },
           "stock_value": 26862192,
@@ -87,7 +87,18 @@
           ],
           "needs_setup": false,
           "setup_issues": [],
-          "active": true
+          "active": true,
+          "van_stock": {
+            "base": 0,
+            "unit": "pcs",
+            "cartons": 0,
+            "pcs": 0,
+            "kg": "0.000",
+            "text": {
+              "en": "0 cartons",
+              "bn": "0 কার্টন"
+            }
+          }
         }
       ],
       "page": {
@@ -130,7 +141,7 @@
             "kg": "0.000",
             "text": {
               "en": "0 cartons",
-              "bn": "0 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+              "bn": "0 কার্টন"
             }
           },
           "stock": {
@@ -141,7 +152,7 @@
             "kg": "324.000",
             "text": {
               "en": "27 cartons",
-              "bn": "27 \u0995\u09be\u09b0\u09cd\u099f\u09a8"
+              "bn": "27 কার্টন"
             }
           },
           "status": "ok",
@@ -180,7 +191,18 @@
           ],
           "needs_setup": false,
           "setup_issues": [],
-          "active": true
+          "active": true,
+          "van_stock": {
+            "base": 0,
+            "unit": "pcs",
+            "cartons": 0,
+            "pcs": 0,
+            "kg": "0.000",
+            "text": {
+              "en": "0 cartons",
+              "bn": "0 কার্টন"
+            }
+          }
         }
       ],
       "page": {
