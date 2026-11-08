@@ -1,7 +1,7 @@
 {
   "name": "petradms",
   "productName": "PetraDMS",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "private": true,
   "description": "Offline PetraDMS backend for MM Traders",
   "author": "Petra",
@@ -15,7 +15,8 @@
     "release:prepare": "node scripts/prepare-release.js",
     "dist": "npm run release:prepare && electron-builder --win --x64 --publish never",
     "test:frontend": "node renderer/tests/run.js",
-    "probe": "node ../tools/real-backend-probe.js"
+    "probe": "node ../tools/real-backend-probe.js",
+    "dist:linux": "npm run release:prepare && electron-builder --linux AppImage --x64 --publish never"
   },
   "build": {
     "appId": "com.petra.dms",
@@ -54,7 +55,31 @@
     "portable": {
       "artifactName": "PetraDMS-${version}-portable.exe"
     },
-    "forceCodeSigning": false
+    "forceCodeSigning": false,
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "build/icon.png",
+      "category": "Office",
+      "synopsis": "Distribution management for wholesale distributors",
+      "maintainer": "Petra Software Solutions",
+      "executableName": "petradms",
+      "artifactName": "PetraDMS-${version}-x86_64.${ext}",
+      "desktop": {
+        "entry": {
+          "Name": "PetraDMS",
+          "Comment": "Distribution management",
+          "StartupWMClass": "PetraDMS"
+        }
+      },
+      "publish": [
+        {
+          "provider": "generic",
+          "url": "https://example.invalid/none"
+        }
+      ]
+    }
   },
   "dependencies": {
     "ajv": "8.20.0",
