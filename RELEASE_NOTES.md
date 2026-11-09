@@ -1,3 +1,7 @@
+# v1.7.6
+
+- Van: cash handed over at close (above what van invoices already collected) now counts in that day's Cash close. Reopening the sheet takes it out again.
+
 # v1.7.5
 
 - The calculator no longer opens by itself after login. Open it with the calculator button or F8.

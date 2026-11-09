@@ -129,3 +129,16 @@ test('van count alone closes the day: sold = loaded − counted, value at wholes
   const {approve}=require('./helpers');await ok(e,'loadsheet.reopen',await approve(e,'loadsheet.reopen',{id:sh.id,reason:'fix'}));
   assert.equal((await ok(e,'products.get',{id:p.id})).product.stock.cartons,s0);
 });
+
+test('van cash handed over joins the day cash; reopen takes it out again',async()=>{
+  const e=await boot();const p=await stocked(e,{list_price:100000});const D=e.today?e.today():'2026-11-06';
+  const before=(await ok(e,'cash.expected',{date:D})).expected_cash;
+  await ok(e,'loadsheet.setLoaded',{date:D,van_id:1,lines:[{product_id:p.id,loaded:{cartons:10}}]});
+  await ok(e,'loadsheet.submit',{date:D,van_id:1,counted:[{product_id:p.id,counted:{cartons:3}}],cash_handed:650000});
+  assert.equal((await ok(e,'cash.expected',{date:D})).expected_cash,before+650000);
+  const sh=e.db.get('SELECT id FROM load_sheets WHERE date=?',[D]);const {approve}=require('./helpers');
+  await ok(e,'loadsheet.reopen',await approve(e,'loadsheet.reopen',{id:sh.id,reason:'fix'}));
+  assert.equal((await ok(e,'cash.expected',{date:D})).expected_cash,before);
+  await ok(e,'loadsheet.submit',{date:D,van_id:1,counted:[{product_id:p.id,counted:{cartons:3}}],cash_handed:700000});
+  assert.equal((await ok(e,'cash.expected',{date:D})).expected_cash,before+700000);
+});

@@ -1,7 +1,7 @@
 { appimageTools, lib }:
 let
   pname = "petradms";
-  version = "1.7.5";
+  version = "1.7.6";
   src = ./PetraDMS-${version}-x86_64.AppImage;
   contents = appimageTools.extract { inherit pname version src; };
 in
