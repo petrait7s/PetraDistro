@@ -1,3 +1,8 @@
+# v1.7.2 — Unlock + pastel light theme
+
+- Owner can unlock a submitted van sheet ("Unlock for edit": reason + owner PIN). Van stock write-off is restored; edit and submit again.
+- Light mode redesigned: soft light-navy page, pale-blue cards, mint and blush tints instead of white. Dark mode unchanged.
+
 # v1.7.1 — Van page fix
 
 - Fixed: the Van page stayed blank once a van sheet had been submitted (output contract error on loadsheet.get). Submitted sheets, including ones saved by v1.7.0, open normally again.
