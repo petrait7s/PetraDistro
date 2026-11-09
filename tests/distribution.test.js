@@ -88,3 +88,29 @@ test('van stock is separate: load moves stock off the godown, van sales need a l
   const legacy=await ok(e,'loadsheet.get',{date:D,van_id:1});assert.equal(legacy.cash.handed,null);
   assert.equal((await ok(e,'loadsheet.list',{})).rows.length,1);
 });
+
+test('data.reset: owner starts over, keeps users/settings/catalog as chosen, backs up first',async()=>{
+  const os=require('node:os'),fs=require('node:fs'),path=require('node:path'),{approve}=require('./helpers');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pdms-'));
+  const e=await boot(null,{backupDir:dir});
+  const p=await stocked(e);
+  const cu=await ok(e,'customers.save',{name:'Rahim Store',area:'A'});
+  const cid=cu.customer?cu.customer.id:cu.id;
+  await ok(e,'sales.create',{customer_id:cid,date:'2026-11-06',lines:[{product_id:p.id,qty:{cartons:2},discount:{type:'none',value:0}}],payment:{amount:100,method:'cash'}});
+  assert.equal((await ok(e,'sales.list',{limit:10})).rows.length,1);
+  await ok(e,'auth.login',{role:'manager',pin:'5678'});
+  const bad=await e.call('data.reset',{mode:'all',reason:'x',approval:{token:'a'.repeat(64),reason:'x'}});assert.equal(bad.ok,false);
+  await ok(e,'auth.login',{role:'owner',pin:'1234'});
+  const noap=await e.call('data.reset',{mode:'keep_catalog',reason:'x',approval:{token:'b'.repeat(64),reason:'x'}});assert.equal(noap.ok,false);assert.equal(noap.code,'NEEDS_OWNER_PIN');
+  const r1=await ok(e,'data.reset',await approve(e,'data.reset',{mode:'keep_catalog',reason:'new year'}));
+  assert.ok(r1.backup_id&&fs.readdirSync(dir).some(f=>f.endsWith('.pdbak')));
+  assert.equal((await ok(e,'sales.list',{limit:10})).rows.length,0);
+  const g=await ok(e,'products.get',{id:p.id});assert.equal(g.product.stock.base,0);
+  assert.ok((await ok(e,'customers.list',{limit:10})).rows.some(c=>c.name==='Rahim Store'));
+  await ok(e,'auth.login',{role:'manager',pin:'5678'});await ok(e,'auth.login',{role:'owner',pin:'1234'});
+  await ok(e,'data.reset',await approve(e,'data.reset',{mode:'all',reason:'wipe'}));
+  assert.equal((await ok(e,'products.list',{limit:10})).rows.length,0);
+  assert.equal((await ok(e,'customers.list',{limit:10})).rows.length,0);
+  await ok(e,'auth.login',{role:'manager',pin:'5678'});await ok(e,'auth.login',{role:'owner',pin:'1234'});
+  assert.ok((await ok(e,'settings.get',{}))['business.name']);
+});

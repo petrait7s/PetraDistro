@@ -13781,6 +13781,79 @@
       }
     },
     {
+      "name": "data.reset",
+      "who": "owner",
+      "input": {
+        "mode": "enum(all|keep_catalog)",
+        "reason": "string",
+        "approval": "Approval",
+        "request_id": "string?"
+      },
+      "output": {
+        "backup_id": "string"
+      },
+      "summary": "Owner starts over: backup first, then clear business records (mode all) or all records but keep products, companies, customers and staff (mode keep_catalog). Users, PINs, settings and license stay.",
+      "errors": [
+        "DB",
+        "FORBIDDEN",
+        "LOCKED",
+        "STATE",
+        "UNAUTHENTICATED",
+        "UNSUPPORTED",
+        "VALIDATION"
+      ],
+      "mutates": true,
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "all",
+              "keep_catalog"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "approval": {
+            "$ref": "#/$defs/Approval"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "mode",
+          "reason",
+          "approval"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "backup_id": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "backup_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "groups.save",
       "who": "owner",
       "input": {

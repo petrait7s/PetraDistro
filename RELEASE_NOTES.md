@@ -1,7 +1,11 @@
-# v1.7.2 — Unlock + pastel light theme
+# v1.7.2 — Unlock, pastel light theme, settings tabs, start over
 
 - Owner can unlock a submitted van sheet ("Unlock for edit": reason + owner PIN). Van stock write-off is restored; edit and submit again.
 - Light mode redesigned: soft light-navy page, pale-blue cards, mint and blush tints instead of white. Dark mode unchanged.
+- New: Settings is split into tabs (General, Business, Users, Backup & data).
+- New: owner-only "Start over" (Settings > Backup & data): backup first, owner PIN, then clear old accounts. Choose "keep products, companies, customers, staff" or "clear everything". Users, PINs, settings, license and audit log stay.
+- Fixed: "Back up now" always failed; it works now.
+- Fixed: About page showed app version 1.0.0.
 
 # v1.7.1 — Van page fix
 

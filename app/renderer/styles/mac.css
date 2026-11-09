@@ -159,3 +159,8 @@
 :root:not([data-theme="dark"]) .auth .main, :root:not([data-theme="dark"]) .auth .card { background: #eef4fb; }
 :root:not([data-theme="dark"]) .btn.p, :root:not([data-theme="dark"]) .btn.p:hover { background: var(--grad); color: #fff; border-color: transparent; }
 :root:not([data-theme="dark"]) .btn.bad { background: #f8dde1; color: #a52a3b; border-color: #efb9c1; }
+.setwrap .tabs { margin-top: 0; }
+.setpane[hidden] { display: none; }
+.setwrap .setgrid { grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+.rs-opt { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; font-size: 13.5px; cursor: pointer; }
+.rs-opt input { margin-top: 3px; }

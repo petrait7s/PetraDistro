@@ -16,6 +16,7 @@
     "license.reveal",
     "cash.reopen",
     "loadsheet.reopen",
+    "data.reset",
     "expenses.reverse",
     "returns.reverse",
     "employees.reverse"
