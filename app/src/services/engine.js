@@ -3,7 +3,7 @@
 const MANAGER_FULL=new Set(["cash.history", "companies.save", "companies.ledger", "products.save", "products.archive", "products.validate", "grid.applyBatch", "stock.adjust", "stock.count.list", "import.pickFile", "import.preview", "import.commit", "export.table", "purchases.create", "purchases.list", "purchases.get", "purchases.preview", "purchases.cancel", "returns.approve", "returns.reject", "payments.cheques.list", "payments.cheques.setStatus", "payments.payCompany", "groups.save", "groups.list", "dashboard.discounts", "dashboard.series", "dashboard.productChart", "dashboard.flags"]);
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),Ajv=require('ajv'),formats=require('ajv-formats');
 const {Db}=require('../core/db'),{hash,canonical,fail,date,pinHash,pinVerify,payload}=require('../core/util');
-const contractPath=fs.existsSync(path.resolve(__dirname,'../../contract'))?path.resolve(__dirname,'../../contract'):path.resolve(__dirname,'../../../contract');
+const contractPath=fs.existsSync(path.resolve(__dirname,'../../../contract/runtime-0.2/methods.json'))?path.resolve(__dirname,'../../../contract'):path.resolve(__dirname,'../../contract');
 const contract=require(path.join(contractPath,'runtime-0.2/methods.json')),settings=require(path.join(contractPath,'settings.json')),matrix=require(path.join(contractPath,'approval-matrix.json'));
 class Engine{
  static async open(file,options={}){const e=new Engine(await Db.open(file,options.db),options);e.db.tx(()=>{for(const [key,value] of Object.entries(settings.defaults))e.db.run('INSERT OR IGNORE INTO settings(key,value,public,updated_at) VALUES(?,?,?,?)',[key,JSON.stringify(value),settings.public.includes(key)?1:0,e.now()]);});return e;}
