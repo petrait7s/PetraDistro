@@ -130,6 +130,7 @@
     $('#b-lock').addEventListener('click', () => PD.session.lock()); $('#b-out').addEventListener('click', () => PD.session.logout());
     wireLangTheme($('.top'));
     const bc = $('#t-calc'); if (bc) bc.addEventListener('click', () => PD.calc.toggle()); const bg = $('#t-games'); if (bg) bg.addEventListener('click', () => PD.games.toggle());
+    if (PD._leave) { const lv = PD._leave; PD._leave = null; try { lv(); } catch (x) { /* ignore */ } }
     const v = PD.views[S.view]; const el = $('#view');
     if (v && v.render) v.render(el); else el.innerHTML = `<div class="soon card">${ic('gear')}<h2>${esc(PD.t('soon.title'))}</h2><p class="muted">${esc(PD.t('soon.body'))}</p></div>`;
     renderStatus();

@@ -114,3 +114,18 @@ test('data.reset: owner starts over, keeps users/settings/catalog as chosen, bac
   await ok(e,'auth.login',{role:'manager',pin:'5678'});await ok(e,'auth.login',{role:'owner',pin:'1234'});
   assert.ok((await ok(e,'settings.get',{}))['business.name']);
 });
+
+test('van count alone closes the day: sold = loaded − counted, value at wholesale rate, cash tally, reopen restores',async()=>{
+  const e=await boot();const p=await stocked(e,{list_price:100000});
+  const D='2026-11-06',s0=(await ok(e,'products.get',{id:p.id})).product.stock.cartons;
+  await ok(e,'loadsheet.setLoaded',{date:D,van_id:1,lines:[{product_id:p.id,loaded:{cartons:10}}]});
+  const r=await ok(e,'loadsheet.submit',{date:D,van_id:1,counted:[{product_id:p.id,counted:{cartons:3}}],cash_handed:650000});
+  assert.equal(r.shortage_value,700000);assert.equal(r.cash.extra,700000);assert.equal(r.cash.expected,700000);assert.equal(r.cash.diff,-50000);assert.equal(r.flagged,true);
+  const g=await ok(e,'loadsheet.get',{date:D,van_id:1});assert.equal(g.lines[0].sold_all.cartons,7);assert.equal(g.lines[0].amount,700000);
+  assert.equal((await ok(e,'products.get',{id:p.id})).product.stock.cartons,s0-7);
+  const sh=e.db.get('SELECT * FROM load_sheets WHERE date=?',[D]);
+  const sn=JSON.parse(sh.snapshot);for(const l of sn.lines){delete l.amount;delete l.sold_all;}delete sn.cash.extra;delete sn.cash.expected;e.db.run('UPDATE load_sheets SET snapshot=? WHERE id=?',[JSON.stringify(sn),sh.id]);
+  const old=await ok(e,'loadsheet.get',{date:D,van_id:1});assert.equal(old.lines[0].amount,700000);assert.equal(old.cash.expected,old.cash.collected);
+  const {approve}=require('./helpers');await ok(e,'loadsheet.reopen',await approve(e,'loadsheet.reopen',{id:sh.id,reason:'fix'}));
+  assert.equal((await ok(e,'products.get',{id:p.id})).product.stock.cartons,s0);
+});

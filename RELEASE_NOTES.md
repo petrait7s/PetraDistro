@@ -1,3 +1,11 @@
+# v1.7.4 — Van page: count closes the day
+
+- Van: morning loading has its own Save button, saves by itself after you type and when you leave the page.
+- Van: in the evening type only what came back. Sold = loaded − counted, amount = sold × wholesale rate, cash that should come in is worked out; type the cash handed over to see the difference. Van invoices are optional (they are added to the totals when present).
+- Van: a product left blank is no longer taken as 0 returned; every loaded product needs a count (type 0 if nothing came back).
+- Fixed: invoice discount box showed 0 and mixed with what you typed.
+- New fields: lines[].sold_all and lines[].amount, cash.extra and cash.expected on loadsheet.get/submit. Old submitted sheets show correctly.
+
 # v1.7.3 — Bug fixes
 
 - Fixed: typing a number in the Paid-now box on Sales lost focus after each digit. Typing now works normally.

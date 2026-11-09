@@ -56,7 +56,7 @@
     const wrap = document.createElement('div'); wrap.className = 'setwrap';
     const bar = document.createElement('div'); bar.className = 'tabs'; wrap.appendChild(bar);
     const icons = { gen: 'gear', biz: 'receipt', usr: 'users', data: 'cloud' }; let cur = PD.S.setTab || 'gen'; if (!groups.some((x) => x[0] === cur)) cur = 'gen';
-    groups.forEach(([k, cards]) => { const btn = document.createElement('button'); btn.className = 'tab' + (k === cur ? ' on' : ''); btn.dataset.stab = k; btn.innerHTML = ic(icons[k]) + ' ' + esc(PD.t('set2.tab.' + k)); bar.appendChild(btn);
+    groups.forEach(([k, cards]) => { const btn = document.createElement('button'); btn.className = 'tab' + (k === cur ? ' on' : ''); btn.dataset.stab = k; btn.innerHTML = ic(icons[k]) + ' ' + esc(PD.t({ gen: 'set2.tab.gen', biz: 'set2.tab.biz', usr: 'set2.tab.usr', data: 'set2.tab.data' }[k])); bar.appendChild(btn);
       const pane = document.createElement('div'); pane.className = 'setgrid setpane'; pane.dataset.pane = k; pane.hidden = k !== cur; cards.filter(Boolean).forEach((c) => pane.appendChild(c)); wrap.appendChild(pane); });
     bar.addEventListener('click', (ev) => { const t = ev.target.closest('[data-stab]'); if (!t) return; PD.S.setTab = t.dataset.stab; bar.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x === t)); wrap.querySelectorAll('.setpane').forEach((p) => { p.hidden = p.dataset.pane !== t.dataset.stab; }); });
     g1.remove(); host.remove(); el.appendChild(wrap);

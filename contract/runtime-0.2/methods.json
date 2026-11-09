@@ -10498,10 +10498,10 @@
       },
       "output": {
         "id": "id?",
-        "lines": "[{product_id:id, name:string, loaded:Qty, sold:Qty, returned:Qty, expected:Qty, counted:Qty?, diff:Qty?, diff_value:money?}]",
+        "lines": "[{product_id:id, name:string, loaded:Qty, sold:Qty, returned:Qty, expected:Qty, counted:Qty?, diff:Qty?, diff_value:money?, sold_all:Qty?, amount:money?}]",
         "submitted": "bool",
         "shortage_value": "money",
-        "cash": "{invoices:int, sales_total:money, collected:money, due:money, handed:money?, diff:money?}"
+        "cash": "{invoices:int, sales_total:money, collected:money, due:money, extra:money, expected:money, handed:money?, diff:money?}"
       },
       "errors": [
         "DB",
@@ -10611,6 +10611,28 @@
                       "type": "null"
                     }
                   ]
+                },
+                "sold_all": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/Qty"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "amount": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -10678,6 +10700,16 @@
                     "type": "null"
                   }
                 ]
+              },
+              "extra": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "expected": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
               }
             },
             "required": [
@@ -10686,7 +10718,9 @@
               "collected",
               "due",
               "handed",
-              "diff"
+              "diff",
+              "extra",
+              "expected"
             ],
             "additionalProperties": false
           }
@@ -10801,7 +10835,7 @@
       "output": {
         "shortage_value": "money",
         "flagged": "bool",
-        "cash": "{collected:money, handed:money?, diff:money?}"
+        "cash": "{invoices:int, sales_total:money, collected:money, due:money, extra:money, expected:money, handed:money?, diff:money?}"
       },
       "errors": [
         "DB",
@@ -10935,6 +10969,16 @@
                     "type": "null"
                   }
                 ]
+              },
+              "extra": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "expected": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
               }
             },
             "required": [
@@ -10943,7 +10987,9 @@
               "collected",
               "due",
               "handed",
-              "diff"
+              "diff",
+              "extra",
+              "expected"
             ],
             "additionalProperties": false
           }
