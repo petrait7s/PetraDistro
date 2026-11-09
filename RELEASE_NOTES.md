@@ -1,3 +1,7 @@
+# v1.7.1 — Van page fix
+
+- Fixed: the Van page stayed blank once a van sheet had been submitted (output contract error on loadsheet.get). Submitted sheets, including ones saved by v1.7.0, open normally again.
+
 # v1.7.0 — Van stock and cash are separate
 
 - Loading the van moves stock off the godown: the load sheet is now the van's own stock.

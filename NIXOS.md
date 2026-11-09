@@ -2,17 +2,17 @@
 
 Download the `PetraDMS-Linux-AppImage` artifact from GitHub Actions, unzip it, then:
 
-    chmod +x PetraDMS-1.7.0-x86_64.AppImage
+    chmod +x PetraDMS-1.7.1-x86_64.AppImage
 
 ## Quick run (no config change)
 
-    nix-shell -p appimage-run --run "appimage-run ./PetraDMS-1.7.0-x86_64.AppImage"
+    nix-shell -p appimage-run --run "appimage-run ./PetraDMS-1.7.1-x86_64.AppImage"
 
 ## Permanent (configuration.nix)
 
     programs.appimage = { enable = true; binfmt = true; };
 
-Then `sudo nixos-rebuild switch` and run `./PetraDMS-1.7.0-x86_64.AppImage` directly.
+Then `sudo nixos-rebuild switch` and run `./PetraDMS-1.7.1-x86_64.AppImage` directly.
 
 ## Installed as a Nix package (menu entry + `petradms` command)
 

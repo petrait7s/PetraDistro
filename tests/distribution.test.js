@@ -83,4 +83,8 @@ test('van stock is separate: load moves stock off the godown, van sales need a l
   assert.equal(g.lines[0].expected.cartons,0);assert.equal(g.cash.collected,1000000);assert.equal(g.cash.invoices,1);
   const r=await ok(e,'loadsheet.submit',{date:D,van_id:1,counted:[{product_id:p.id,counted:{cartons:0}}],cash_handed:900000});
   assert.equal(r.cash.diff,-100000);assert.equal(r.flagged,true);
+  const done=await ok(e,'loadsheet.get',{date:D,van_id:1});assert.equal(done.submitted,true);assert.equal(done.cash.handed,900000);assert.equal(done.cash.diff,-100000);
+  const old=e.db.get('SELECT * FROM load_sheets WHERE date=?',[D]);const sn=JSON.parse(old.snapshot);delete sn.cash;delete sn.wo;e.db.run('UPDATE load_sheets SET snapshot=? WHERE id=?',[JSON.stringify(sn),old.id]);
+  const legacy=await ok(e,'loadsheet.get',{date:D,van_id:1});assert.equal(legacy.cash.handed,null);
+  assert.equal((await ok(e,'loadsheet.list',{})).rows.length,1);
 });
