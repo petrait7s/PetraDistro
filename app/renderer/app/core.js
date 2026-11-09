@@ -7,7 +7,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  PD.$ = $; PD.$$ = $$; PD.esc = esc; PD.VERSION = '1.6.0';
+  PD.$ = $; PD.$$ = $$; PD.esc = esc; PD.VERSION = '1.7.0';
 
   const IC = {
     dash: '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/>',
