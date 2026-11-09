@@ -1,3 +1,10 @@
+# v1.7.3 — Bug fixes
+
+- Fixed: typing a number in the Paid-now box on Sales lost focus after each digit. Typing now works normally.
+- Fixed: closed business day. New owner-only "Reopen day" button on Cash close; the "Locked" error now says what is locked and how to open it.
+- Fixed: calculator window could not be closed in the desktop app (its title bar sat inside the window-drag area).
+- Start over / Back up now: backup folder falls back to the app data folder if Documents is not writable; unexpected file errors are printed to the terminal.
+
 # v1.7.2 — Unlock, pastel light theme, settings tabs, start over
 
 - Owner can unlock a submitted van sheet ("Unlock for edit": reason + owner PIN). Van stock write-off is restored; edit and submit again.

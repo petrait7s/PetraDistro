@@ -96,6 +96,7 @@
     const idxOf = (b, k) => { let c = -1; for (let i = 0; i < st.lines.length; i++) { if (!U.qtyEmpty(st.lines[i].qty)) c++; if (c === k) return i; } return 0; };
 
     function side(d, err) {
+      const ae = document.activeElement; const keep = ae && ae.id && $('#s-side') && $('#s-side').contains(ae) && /^(s-pay|s-idv|s-ref)$/.test(ae.id) ? { id: ae.id, v: ae.value, a: ae.selectionStart, z: ae.selectionEnd } : null;
       const t = d && d.totals; const cs = t && t.credit_state;
       const row = (a, b, cls) => `<span class="${cls || ''}">${esc(a)}</span><b class="num ${cls || ''}" style="text-align:right">${b}</b>`;
       $('#s-side').innerHTML = `<div class="tot">${row(PD.t('sales.subtotal'), t ? PD.money(t.subtotal) : '–')}${t && t.line_discount ? row(PD.t('sales.lineDisc'), '−' + PD.money(t.line_discount)) : ''}${t && t.invoice_discount ? row(PD.t('sales.invDiscAmt'), '−' + PD.money(t.invoice_discount)) : ''}<div class="hr"></div><span class="big">${esc(PD.t('sales.total'))}</span><span class="big num" style="text-align:right">${t ? PD.money(t.total) : '–'}</span>${t && t.paid ? row(PD.t('sales.paid'), PD.money(t.paid)) : ''}${t ? row(PD.t('sales.due'), PD.money(t.due), t.due > 0 ? 'warn-t' : '') : ''}${t ? '<div class="hr"></div>' + row(PD.t('sales.prevDue'), PD.money(t.customer_due_before)) + row(PD.t('sales.afterDue'), PD.money(t.customer_due_after), cs !== 'ok' ? 'bad-t' : '') : ''}</div>
@@ -109,6 +110,7 @@
       $('#s-pm').addEventListener('change', (e) => { st.pay.method = e.target.value; side(prev, err); });
       const rf = $('#s-ref'); if (rf) rf.addEventListener('input', (e) => { st.pay.ref = e.target.value; });
       $('#s-clear').addEventListener('click', reset); $('#s-save').addEventListener('click', save);
+      if (keep) { const n = $('#' + keep.id); if (n && !n.disabled) { n.value = keep.v; n.focus(); try { n.setSelectionRange(keep.a, keep.z); } catch (x) { /* ignore */ } } }
     }
     function reset() { st.customer = null; st.lines = []; st.invDisc = { type: 'none', value: 0 }; st.pay = { amount: null, method: 'cash', ref: '' }; prev = null; cp.set(''); custInfo(); drawLines(); side(null); }
     async function save() {

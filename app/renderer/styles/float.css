@@ -52,3 +52,5 @@
 .gmem button.cd.up { background: var(--panel); } .gmem button.cd.done { background: var(--good-soft); border-color: var(--good); }
 .gmem svg { width: 38px; height: 38px; }
 .gm .ctl { display: flex; gap: 6px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+
+.fw, .fw * { -webkit-app-region: no-drag; }

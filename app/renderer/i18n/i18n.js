@@ -12,7 +12,7 @@
     return s;
   };
   /* translate error envelope: err.<CODE>, with optional details params */
-  PD.errText = (e) => { const k = 'err.' + (e && e.code); const has = dict.en[k] != null; return has ? PD.t(k, e.details && e.details.params) : PD.t('err.UNKNOWN'); };
+  PD.errText = (e) => { let k = 'err.' + (e && e.code); if (e && e.code === 'LOCKED') { const m = { 'Business day closed': 'err.LOCKED.day', 'Session locked': 'err.LOCKED.sess', 'Edit mode required': 'err.LOCKED.edit' }[e.message]; if (m && dict.en[m] != null) k = m; } const has = dict.en[k] != null; return has ? PD.t(k, e.details && e.details.params) : PD.t('err.UNKNOWN'); };
   /* apply to static markup: elements with data-i18n="key" (text), data-i18n-ph (placeholder), data-i18n-title (title/aria-label) */
   PD.i18n.apply = (rootEl) => {
     const r = rootEl || document;
