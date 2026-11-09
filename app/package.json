@@ -1,7 +1,7 @@
 {
   "name": "petradms",
   "productName": "PetraDMS",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "private": true,
   "description": "Offline PetraDMS backend for MM Traders",
   "author": "Petra",

@@ -134,7 +134,6 @@
     const v = PD.views[S.view]; const el = $('#view');
     if (v && v.render) v.render(el); else el.innerHTML = `<div class="soon card">${ic('gear')}<h2>${esc(PD.t('soon.title'))}</h2><p class="muted">${esc(PD.t('soon.body'))}</p></div>`;
     renderStatus();
-    if (S.prefs && S.prefs.calc && S.prefs.calc.open && PD.canCalc() && !PD.calc.isOpen() && !PD._calcRestored) { PD._calcRestored = true; PD.calc.open(); }
   }
   PD.refreshTools = () => { const t = $('.top .tools'); if (t) { t.innerHTML = topTools(); wireLangTheme(t); const bc = $('#t-calc'); if (bc) bc.addEventListener('click', () => PD.calc.toggle()); const bg = $('#t-games'); if (bg) bg.addEventListener('click', () => PD.games.toggle()); } };
   PD.on('calc', () => PD.refreshTools()); PD.on('games', () => PD.refreshTools());

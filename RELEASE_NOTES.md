@@ -1,3 +1,7 @@
+# v1.7.5
+
+- The calculator no longer opens by itself after login. Open it with the calculator button or F8.
+
 # v1.7.4 — Van page: count closes the day
 
 - Van: morning loading has its own Save button, saves by itself after you type and when you leave the page.
